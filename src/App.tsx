@@ -1,3 +1,4 @@
+import "./App.less";
 import { ApolloProvider } from "@apollo/react-hooks";
 import { useRecoilValue } from "recoil";
 import { client } from "./configs/apollo/client";
@@ -10,10 +11,10 @@ function App() {
   const user = useRecoilValue(UserState);
   return (
     <ApolloProvider client={client}>
+      <GlobalStyle />
       <LoginValidator>
         {user ? <AfterLoginRoutes /> : <BeforeLoginRoutes />}
       </LoginValidator>
-      <GlobalStyle />
     </ApolloProvider>
   );
 }

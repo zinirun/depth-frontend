@@ -9,6 +9,8 @@ interface IButtonProps {
   icon?: React.ReactNode;
   borderless?: boolean;
   fontSize?: string | number;
+  hoverBlueOutline?: boolean;
+  type?: "button" | "submit" | "reset";
 }
 
 export default function Button({
@@ -18,6 +20,8 @@ export default function Button({
   icon,
   borderless,
   fontSize,
+  hoverBlueOutline,
+  type,
 }: IButtonProps) {
   return (
     <NormalButton
@@ -25,6 +29,8 @@ export default function Button({
       block={block}
       borderless={borderless}
       fontSize={fontSize}
+      hoverBlueOutline={hoverBlueOutline}
+      type={type}
     >
       {icon ? (
         <RowFlexSection gap={3}>
@@ -84,6 +90,7 @@ const NormalButton = styled.button<{
   block?: boolean;
   borderless?: boolean;
   fontSize?: string | number;
+  hoverBlueOutline?: boolean;
 }>`
   color: ${SystemColor.Text};
   border: ${(props) =>
@@ -100,6 +107,12 @@ const NormalButton = styled.button<{
     (typeof props.fontSize === "number"
       ? `font-size: ${props.fontSize}px;`
       : `font-size: ${props.fontSize};`)}
+  ${(props) =>
+    props.hoverBlueOutline &&
+    `
+  :hover {
+    outline: 1px solid ${SystemColor.Blue50};
+  }`}
 `;
 
 const TransparentBox = styled.div<{

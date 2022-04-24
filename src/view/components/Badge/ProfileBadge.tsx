@@ -1,40 +1,50 @@
-import { IUser } from "configs/interfaces/common/user.interface";
 import styled from "styled-components";
 import Typo from "../Typo/Typo";
-import Tooltip from "react-tooltip";
 import { SystemColor } from "configs/styles/colors";
+import { IUserMeta } from "configs/interfaces/common/user-meta.interface";
+import { HTMLAttributes } from "react";
+import { Tooltip } from "antd";
 
 interface IProfileBadgeProps {
-  user: IUser;
+  user: IUserMeta;
   size?: "medium" | "large";
   idx?: number;
 }
 
-export function ProfileBadge({ user, idx }: IProfileBadgeProps) {
+export function ProfileBadge({ user, idx, size }: IProfileBadgeProps) {
   return (
-    <RoundBadge
-      data-tip={`${user.name}<br />${user.email}`}
-      className="profile-badge"
-      background={getBadgeColor(idx)}
+    <Tooltip
+      title={
+        <>
+          <Typo fontSize="0.75rem" color="white">
+            {user.name}
+          </Typo>
+          <Typo fontSize="0.65rem" color="white">
+            {user.email}
+          </Typo>
+        </>
+      }
+      placement="bottom"
     >
-      <Typo fontSize="0.9rem" color="white">
-        {user.name ? user.name[0] : user.email[0]}
-      </Typo>
-    </RoundBadge>
+      <RoundBadge className="profile-badge" background={getBadgeColor(idx)}>
+        <Typo fontSize="0.9rem" color="white">
+          {user.name ? user.name[0] : user.email[0]}
+        </Typo>
+      </RoundBadge>
+    </Tooltip>
   );
 }
 
-interface IProfileBadgesProps {
-  users: IUser[];
+interface IProfileBadgesProps extends HTMLAttributes<HTMLDivElement> {
+  users: IUserMeta[];
 }
 
-export function ProfileBadges({ users }: IProfileBadgesProps) {
+export function ProfileBadges({ users, ...rest }: IProfileBadgesProps) {
   return (
-    <BadgeGroup>
+    <BadgeGroup {...rest}>
       {users.map((user, idx) => (
         <ProfileBadge key={user._id} user={user} idx={idx} />
       ))}
-      <Tooltip effect="solid" place="bottom" multiline />
     </BadgeGroup>
   );
 }

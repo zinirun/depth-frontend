@@ -6,7 +6,7 @@ import { useRecoilState } from "recoil";
 import { ProjectsState } from "recoil/atoms";
 import errorLogger from "util/logger/error-logger";
 
-export default function useSyncronizeProject() {
+export default function useSyncronizeProjects() {
   const [projects, setProjects] = useRecoilState(ProjectsState);
   const { data, loading, error, refetch } = useQuery<{ projects: IProject[] }>(
     PROJECTS

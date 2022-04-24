@@ -1,10 +1,12 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import Modal from "view/components/Modal";
 import LoginPage from "./view/pages/LoginPage";
 import WorkspacePage from "./view/pages/WorkspacePage";
 
 export function AfterLoginRoutes() {
   return (
     <BrowserRouter>
+      <Modal />
       <Routes>
         <Route
           path="/workspace/projects"

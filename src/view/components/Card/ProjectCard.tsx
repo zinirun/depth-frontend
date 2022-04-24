@@ -41,14 +41,6 @@ export default function ProjectCard({ project }: IProjectCardProps) {
   );
 }
 
-export function NewProjectCard() {
-  return (
-    <NewCardContainer>
-      <Typo fontSize="0.9rem">Create new project</Typo>
-    </NewCardContainer>
-  );
-}
-
 const CardContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -56,22 +48,7 @@ const CardContainer = styled.div`
   border-radius: 5px;
   padding: 12px 0;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
   :hover {
-    box-shadow: rgb(15 15 15 / 5%) 0px 2px 4px;
-  }
-`;
-
-const NewCardContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 5px;
-  padding: 8px 12px;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  :hover {
-    box-shadow: rgb(15 15 15 / 5%) 0px 2px 4px;
+    outline: 1px solid ${SystemColor.Blue50};
   }
 `;
