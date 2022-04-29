@@ -11,10 +11,14 @@ import {
   ICreateTaskCommentInput,
 } from "api/mutations/create-task-comment";
 import errorLogger from "util/logger/error-logger";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { useForm } from "antd/lib/form/Form";
 import useUser from "util/hooks/useUser";
 import { IUser } from "configs/interfaces/common/user.interface";
+import moment from "moment";
+import Line from "../Line";
+import ColumnFlexSection from "../Layout/ColumnFlexSection";
+import { ReactComponent as CommentIcon } from "assets/common/CommentIcon.svg";
 
 interface ICommentsCardProps {
   taskId: string;
@@ -32,7 +36,10 @@ export default function CommentsCard({
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollToBottom = () => {
     if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+      const scrollHeight = containerRef.current.scrollHeight;
+      if (scrollHeight) {
+        containerRef.current.scrollTop = containerRef.current.scrollHeight;
+      }
     }
   };
   useEffect(() => {
@@ -40,7 +47,6 @@ export default function CommentsCard({
   }, [comments]);
   const handleAfterCreate = async (content: string) => {
     refetch && (await refetch());
-    // TODO: Set comments before refetch
     setComments([
       ...comments,
       {
@@ -52,21 +58,35 @@ export default function CommentsCard({
   };
   return (
     <Container>
-      <Typo fontSize="0.7rem" color="#aaa" padding="0 0 8px">
-        {comments?.length || "no"} comments
-      </Typo>
+      <RowFlexSection padding="0 0 8px" justifyContent="flex-start">
+        <CommentIcon width={18} height={18} />
+        <Typo color="#aaa" fontSize="0.65rem">
+          {comments.length}
+        </Typo>
+      </RowFlexSection>
       <CommentContainer ref={containerRef}>
         {comments.map((comment, idx) => (
-          <RowFlexSection
-            className="task-comment"
-            key={`tc-${idx}`}
-            alignItems="center"
-            justifyContent="flex-start"
-            gap={8}
-          >
-            <ProfileBadge user={comment.author} />
-            <Typo fontSize="0.75rem">{comment.content}</Typo>
-          </RowFlexSection>
+          <Fragment key={`tc-${idx}`}>
+            <ColumnFlexSection>
+              <RowFlexSection
+                className="task-comment"
+                alignItems="center"
+                justifyContent="flex-start"
+                gap={8}
+              >
+                <ProfileBadge user={comment.author} />
+                <Typo fontSize="0.75rem">{comment.content}</Typo>
+              </RowFlexSection>
+              <RowFlexSection justifyContent="flex-end">
+                {comment.createdAt && (
+                  <Typo fontSize="0.6rem" color="#aaa">
+                    {moment(comment.createdAt).local().format("YY/MM/DD HH:mm")}
+                  </Typo>
+                )}
+              </RowFlexSection>
+            </ColumnFlexSection>
+            {idx !== comments.length - 1 && <Line />}
+          </Fragment>
         ))}
       </CommentContainer>
       <CreateCommentBox taskId={taskId} afterCreate={handleAfterCreate} />

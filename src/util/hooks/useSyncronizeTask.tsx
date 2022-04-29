@@ -3,14 +3,19 @@ import { TASKS_BY_PROJECT_ID } from "api/queries/tasksByProjectId";
 import { ITask } from "configs/interfaces/common/task.interface";
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
-import { TaskStore } from "recoil/atoms";
+import { FlatTaskStore, TaskStore } from "recoil/atoms";
 import errorLogger from "util/logger/error-logger";
+import flattenTasks from "view/components/_util/flattenTasks";
 
 export default function useSyncronizeTask(projectId?: string) {
   const [tasksByProjectId, setTasksByProjectId] = useRecoilState(TaskStore);
-  const [tasks, setTasks] = useState<ITask[]>([]);
+  const [flatTasksByProjectId, setFlatTasksByProjectId] =
+    useRecoilState(FlatTaskStore);
+  const flatTasks = flatTasksByProjectId[projectId || ""];
+  const tasks = (projectId && tasksByProjectId[projectId]) || [];
+
   // TODO: command params, what refetch?
-  const [getTasksByProjectId, { refetch: refetchTasks, loading, data }] =
+  const [getTasksByProjectId, { refetch: refetchTasks, loading, data, error }] =
     useLazyQuery<{ tasksByProjectId: ITask[] }, { projectId: string }>(
       TASKS_BY_PROJECT_ID,
       {
@@ -19,6 +24,7 @@ export default function useSyncronizeTask(projectId?: string) {
         },
       }
     );
+  const [needEachTaskReset, setNeedEachTaskReset] = useState<boolean>(true);
 
   useEffect(() => {
     async function sync() {
@@ -33,23 +39,43 @@ export default function useSyncronizeTask(projectId?: string) {
   useEffect(() => {
     if (data) {
       const result = data?.tasksByProjectId;
-      setTasks(result);
-      projectId &&
+      if (projectId) {
         setTasksByProjectId({
           ...tasksByProjectId,
           [projectId]: result,
         });
+        setFlatTasksByProjectId({
+          ...flatTasksByProjectId,
+          [projectId]: flattenTasks(result),
+        });
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
+  useEffect(() => {
+    if (error) {
+      errorLogger(new Error(`cannot syncronize tasks: ${error.message}`));
+    }
+  }, [error]);
+
   const init = () => {
-    setTasks([]);
+    if (projectId) {
+      const { [projectId]: _, ...rest } = tasksByProjectId;
+      setTasksByProjectId(rest);
+    }
   };
 
   const refetch = async () => {
     await refetchTasks();
   };
 
-  return { tasks, refetch, loading, init };
+  return {
+    tasks,
+    refetch,
+    loading,
+    init,
+    needEachTaskReset,
+    flatTasks,
+  };
 }

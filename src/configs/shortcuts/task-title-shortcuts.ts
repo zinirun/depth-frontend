@@ -13,6 +13,7 @@ export enum TaskTitleCommand {
   SetViewFocus = "SET_VIEW_FOCUS",
   ViewDetail = "VIEW_DETAIL",
   CloseMenu = "CLOSE_MENU",
+  DeleteTaskIfInputEmpty = "DELETE_TASK",
 }
 export const TaskTitleShortcuts = [
   {
@@ -27,10 +28,10 @@ export const TaskTitleShortcuts = [
     key: "Escape",
     command: TaskTitleCommand.CloseMenu,
   },
-  {
-    key: "Tab",
-    command: TaskTitleCommand.IncreaseDepth,
-  },
+  // {
+  //   key: "Tab",
+  //   command: TaskTitleCommand.IncreaseDepth,
+  // },
   {
     key: "ArrowUp",
     command: TaskTitleCommand.Fold,
@@ -53,11 +54,12 @@ export const TaskTitleShortcuts = [
   },
   {
     key: "Enter",
-    command: TaskTitleCommand.NewTaskInSameDepth,
+    command: TaskTitleCommand.NewTaskInNewDepth,
+    withCmdOrCtrl: true,
   },
   {
     key: "Enter",
-    command: TaskTitleCommand.NewTaskInNewDepth,
+    command: TaskTitleCommand.NewTaskInSameDepth,
   },
   {
     code: "KeyV",
@@ -73,8 +75,12 @@ export const TaskTitleShortcuts = [
     command: TaskTitleCommand.JumpPrevious,
   },
   {
-    key: "Enter",
+    key: "d",
     command: TaskTitleCommand.ViewDetail,
     withCmdOrCtrl: true,
+  },
+  {
+    key: "Backspace",
+    command: TaskTitleCommand.DeleteTaskIfInputEmpty,
   },
 ];

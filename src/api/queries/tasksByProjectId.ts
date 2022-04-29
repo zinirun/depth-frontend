@@ -6,27 +6,27 @@ export const TASKS_BY_PROJECT_ID = gql`
   query TasksByProjectId($projectId: ID!) {
     tasksByProjectId(projectId: $projectId) {
       ...TaskChildren
-      childrens {
+      children {
         ...TaskChildren
-        childrens {
+        children {
           ...TaskChildren
-          childrens {
+          children {
             ...TaskChildren
-            childrens {
+            children {
               ...TaskChildren
-              childrens {
+              children {
                 ...TaskChildren
-                childrens {
+                children {
                   ...TaskChildren
-                  childrens {
+                  children {
                     ...TaskChildren
-                    childrens {
+                    children {
                       ...TaskChildren
-                      childrens {
+                      children {
                         ...TaskChildren
-                        childrens {
+                        children {
                           ...TaskChildren
-                          childrens {
+                          children {
                             ...TaskChildren
                           }
                         }

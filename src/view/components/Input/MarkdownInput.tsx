@@ -31,7 +31,7 @@ export default function MarkdownInput({
               rehypePlugins: [[rehypeSanitize]],
               className: "markdown-preview",
             }}
-            height={270}
+            height={205}
             autoFocus
           />
           <Typo
@@ -55,12 +55,7 @@ export default function MarkdownInput({
               className="markdown-content"
             />
           ) : (
-            <Typo
-              padding="12px 0 0"
-              fontSize="0.75rem"
-              color="#aaa"
-              onClick={handleSwitchVisible}
-            >
+            <Typo fontSize="0.75rem" color="#aaa">
               <Typo span code fontSize="0.675rem">
                 Click
               </Typo>{" "}
@@ -97,4 +92,5 @@ const Container = styled.div`
 const PreviewContainer = styled.div`
   height: 100%;
   display: flex;
+  flex-direction: column;
 `;

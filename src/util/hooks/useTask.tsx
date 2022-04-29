@@ -21,6 +21,12 @@ import omitTypename from "view/components/_util/omitTypename";
 import useDebounce from "view/components/_util/useDebounce";
 import useSyncronizeTask from "./useSyncronizeTask";
 import { ITaskComment } from "configs/interfaces/common/task-comment.interface";
+import useFocus from "./useEventFocus";
+import { DELETE_TASK } from "api/mutations/delete-task";
+import { useReward } from "react-rewards";
+import useCustomized from "./useCustomized";
+import { useSetRecoilState } from "recoil";
+import { TaskDetailCardCurrentIdState } from "recoil/atoms";
 
 export interface IConnectedTaskOptions {
   title: string;
@@ -54,35 +60,57 @@ export interface IConnectedTaskOptions {
     e?: React.MouseEvent<HTMLElement, MouseEvent> | undefined
   ) => void;
   setChanged: React.Dispatch<React.SetStateAction<boolean>>;
-  childrens: ITask[];
-  createNewChildren: (isInSameDepth: boolean) => Promise<void>;
+  children: ITask[];
+  createNewChild: (isInSameDepth: boolean) => Promise<void>;
   refetch: () => Promise<void>;
+  deleted: boolean;
+  handleDelete: () => void;
+  detailVisible: boolean;
+  setDetailVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function useTask(
-  task: ITask,
-  parentId: string | undefined
+  originalTask: ITask,
+  parentId: string | undefined,
+  setDeleteConfirmVisible?: React.Dispatch<React.SetStateAction<boolean>>
 ): IConnectedTaskOptions {
-  const [needReset, setNeedReset] = useState<boolean>(false);
+  const projectId = originalTask.project?._id;
+
+  const { flatTasks, refetch: refetchTasks } = useSyncronizeTask(projectId);
+  const { setTaskEventFocus } = useFocus();
+  const { setTaskViewFocus } = useCustomized(projectId);
+
+  const task = flatTasks[originalTask._id];
+
+  const [detailVisible, setDetailVisible] = useState<boolean>(false);
+  const setDetailCurrentId = useSetRecoilState(TaskDetailCardCurrentIdState);
+
+  const [deleted, setDeleted] = useState<boolean>(false);
   const [changed, setChanged] = useState<boolean>(false);
-  const [childrens, setChildrens] = useState<ITask[]>(task.childrens || []);
+  const [children, setChildren] = useState<ITask[]>(task?.children || []);
   // inputs
-  const [title, setTitle] = useState<string>(task.title || "");
+  const [title, setTitle] = useState<string>(task?.title || "");
   const [content, setContent] = useState<string | undefined>(
-    task.content || ""
+    task?.content || ""
   );
   const [deadline, setDeadline] = useState<IDateRange | undefined>(
-    omitTypename(task.deadline)
+    omitTypename(task?.deadline)
   );
   const [involvedUsers, setInvolvedUsers] = useState<IUserMeta[] | undefined>(
-    task.involvedUsers
+    task?.involvedUsers
   );
-  const [status, setStatus] = useState<TaskStatus | undefined>(task.status);
-  const [comments, setComments] = useState<ITaskComment[]>(task.comments);
+  const [status, setStatus] = useState<TaskStatus | undefined>(task?.status);
+  const [comments, setComments] = useState<ITaskComment[]>(task?.comments);
   // hooks
-  const { refetch: refetchTasks } = useSyncronizeTask(task.project?._id);
-  const debouncedTitle = useDebounce({ value: title, delay: 700 });
-  const debouncedContent = useDebounce({ value: content, delay: 700 });
+  const debouncedTitle = useDebounce({ value: title, delay: 500 });
+  const debouncedContent = useDebounce({ value: content, delay: 500 });
+  const { reward } = useReward("reward-target", "emoji", {
+    emoji: ["👍", "❤️"],
+    lifetime: 160,
+    elementSize: 14,
+    elementCount: 20,
+    spread: 60,
+  });
   // dropdown menu
   const [menu, setMenu] = useState<ITaskCardMenuOption>();
   const closeMenu = () => setMenu({ ...menu, visible: false });
@@ -95,14 +123,17 @@ export default function useTask(
     e?.stopPropagation();
   };
   // api
-  const [updateTask] = useMutation<
-    { updateTask: ITask[] },
-    { task: IUpdateTaskInput }
-  >(UPDATE_TASK);
   const [createTask] = useMutation<
     { createTask: ITask },
     { task: ICreateTaskInput }
   >(CREATE_TASK);
+  const [updateTask] = useMutation<
+    { updateTask: ITask[] },
+    { task: IUpdateTaskInput }
+  >(UPDATE_TASK);
+  const [deleteTask] = useMutation<{ deleteTask: string }, { id: string }>(
+    DELETE_TASK
+  );
 
   const handleTitleChange = (
     e:
@@ -114,8 +145,22 @@ export default function useTask(
       setChanged(true);
     }
   };
-  const handleCaptureShortcut = (e: React.KeyboardEvent<HTMLInputElement>) => {
+
+  const handleCaptureShortcut = async (
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     const command = getCommandByShortcuts(e, TaskTitleShortcuts);
+
+    if (command === TaskTitleCommand.DeleteTaskIfInputEmpty) {
+      if (!title?.length) {
+        e.preventDefault();
+        setDeleteConfirmVisible && setDeleteConfirmVisible(true);
+        return;
+      } else {
+        return;
+      }
+    }
+
     if (command) {
       e.preventDefault();
       if (command === TaskTitleCommand.AssignMembers) {
@@ -134,7 +179,17 @@ export default function useTask(
         toggleNextStatus(status);
       }
       if (command === TaskTitleCommand.NewTaskInSameDepth) {
-        createNewChildren(true);
+        createNewChild(true);
+      }
+      if (command === TaskTitleCommand.NewTaskInNewDepth) {
+        createNewChild(false);
+      }
+      if (command === TaskTitleCommand.ViewDetail) {
+        setDetailCurrentId(task._id);
+        setDetailVisible(true);
+      }
+      if (command === TaskTitleCommand.SetViewFocus) {
+        setTaskViewFocus(task._id);
       }
     }
   };
@@ -161,10 +216,16 @@ export default function useTask(
       return;
     }
     setStatus(next);
+    if (next === "Done") {
+      reward();
+    }
     setChanged(true);
   };
 
   const handleSubmit = async () => {
+    if (!task?._id) {
+      return;
+    }
     try {
       const input = {
         title,
@@ -180,47 +241,49 @@ export default function useTask(
     } catch (err) {
       errorLogger(err as Error);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   };
 
-  const createNewChildren = async (isInSameDepth: boolean) => {
+  const handleDelete = async () => {
+    if (!task?._id) {
+      return;
+    }
     try {
-      if (!task.project?._id) {
+      await deleteTask({
+        variables: {
+          id: task._id,
+        },
+      });
+      setDeleted(true);
+      setTaskEventFocus(parentId);
+      await refetchTasks();
+    } catch (err) {
+      errorLogger(err as Error);
+    }
+  };
+
+  const createNewChild = async (isInSameDepth: boolean) => {
+    try {
+      if (!task?.project?._id) {
         return;
       }
-      const newChildren = {
+      const newChild = {
         projectId: task.project._id,
         parentTaskId: isInSameDepth ? parentId : task._id,
         title: "",
       };
       const { data } = await createTask({
         variables: {
-          task: newChildren,
+          task: newChild,
         },
       });
-      if (!isInSameDepth && data?.createTask) {
-        setChildrens([...childrens, data?.createTask]);
-      } else {
-        refetch();
-      }
+      await refetchTasks();
+      data?.createTask._id && setTaskEventFocus(data.createTask._id);
     } catch (err) {
       errorLogger(
         new Error(`cannot create new children: ${(err as Error).message}`)
       );
     }
   };
-
-  useEffect(() => {
-    if (needReset && task) {
-      setTitle(task.title || "");
-      setContent(task.content || "");
-      setDeadline(omitTypename(task.deadline));
-      setInvolvedUsers(task.involvedUsers);
-      setStatus(task.status);
-      setComments(task.comments);
-      setNeedReset(false);
-    }
-  }, [needReset, task]);
 
   // auto submit hooks
   useEffect(() => {
@@ -258,11 +321,6 @@ export default function useTask(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
-  const refetch = async () => {
-    await refetchTasks();
-    setTimeout(() => setNeedReset(true), 500);
-  };
-
   return {
     title,
     content,
@@ -283,8 +341,12 @@ export default function useTask(
     openMenuWithAssignMember,
     openMenuWithSetDeadline,
     setChanged,
-    childrens,
-    createNewChildren,
-    refetch,
+    children,
+    createNewChild,
+    refetch: refetchTasks,
+    deleted,
+    handleDelete,
+    detailVisible,
+    setDetailVisible,
   };
 }

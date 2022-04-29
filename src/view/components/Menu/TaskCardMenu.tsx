@@ -20,9 +20,9 @@ export interface ITaskCardMenuOption {
 }
 
 export interface ITaskCardMenuProps {
-  task: ITask;
+  task?: ITask;
   menu?: ITaskCardMenuOption;
-  setMenu: React.Dispatch<
+  setMenu?: React.Dispatch<
     React.SetStateAction<ITaskCardMenuOption | undefined>
   >;
   setInputFocus?: () => void;
@@ -31,6 +31,7 @@ export interface ITaskCardMenuProps {
   >;
   setDeadline?: React.Dispatch<React.SetStateAction<IDateRange | undefined>>;
   setChanged?: React.Dispatch<React.SetStateAction<boolean>>;
+  withCaptureClose?: boolean;
 }
 
 const TaskCardMenu = (props: ITaskCardMenuProps) => {
@@ -42,6 +43,7 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
     setInvolvedUsers,
     setDeadline,
     setChanged,
+    withCaptureClose = true,
   } = props;
   const [users, setUsers] = useState<IUserMeta[]>([]);
   const {
@@ -50,11 +52,11 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
     loading: userLoading,
     refetch: refetchUsers,
   } = useQuery<{ projectUsers: IUserMeta[] }, { id: string }>(PROJECT_USERS, {
-    variables: { id: task.project?._id! },
-    skip: menu?.type !== TaskTitleCommand.AssignMembers || !task.project?._id,
+    variables: { id: task?.project?._id! },
+    skip: menu?.type !== TaskTitleCommand.AssignMembers || !task?.project?._id,
   });
   const [isDateRange, setIsDateRange] = useState<boolean>(
-    !!task.deadline?.from && !!task.deadline?.to
+    !!task?.deadline?.from && !!task?.deadline?.to
   );
 
   useEffect(() => {
@@ -72,8 +74,8 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
   }, [refetchUsers]);
 
   const captureCloseKey = (e: React.KeyboardEvent<HTMLElement>) => {
-    if (e.key === "Escape") {
-      setMenu({ visible: false });
+    if (withCaptureClose && e.key === "Escape") {
+      setMenu && setMenu({ visible: false });
       setInputFocus && setInputFocus();
     }
   };
@@ -87,7 +89,7 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
   };
 
   const handleChangeAssignedMembers = (values: string[], option: any) => {
-    const involvedUserIds = values.filter((id) => id !== task.author._id);
+    const involvedUserIds = values.filter((id) => id !== task?.author._id);
     const involvedUsers = involvedUserIds
       .map((id) => {
         const user = users.find((user) => user._id === id);
@@ -130,8 +132,8 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
             placeholder="Select members"
             optionFilterProp="children"
             defaultValue={[
-              task.author._id,
-              ...task.involvedUsers.map((user) => user._id),
+              task?.author?._id!,
+              ...(task?.involvedUsers.map((user) => user._id) || []),
             ]}
             defaultOpen={true}
             onKeyDown={captureCloseKey}
@@ -143,7 +145,7 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
               <Select.Option
                 value={user._id}
                 key={user._id}
-                disabled={task.author._id === user._id}
+                disabled={task?.author._id === user._id}
               >
                 {user.name} ({user.email})
               </Select.Option>
@@ -157,8 +159,8 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
           {isDateRange ? (
             <DatePicker.RangePicker
               defaultValue={[
-                task.deadline?.from ? moment(task.deadline?.from) : moment(),
-                task.deadline?.to ? moment(task.deadline?.to) : moment(),
+                task?.deadline?.from ? moment(task?.deadline?.from) : moment(),
+                task?.deadline?.to ? moment(task?.deadline?.to) : moment(),
               ]}
               onKeyDown={captureInDeadline}
               onChange={handleChangeDateRange}
@@ -167,7 +169,7 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
           ) : (
             <DatePicker
               defaultValue={
-                task.deadline?.to ? moment(task.deadline?.to) : moment()
+                task?.deadline?.to ? moment(task?.deadline?.to) : moment()
               }
               onKeyDown={captureInDeadline}
               onChange={handleChangeDate}

@@ -56,4 +56,5 @@ const NavSection = styled.nav`
   justify-content: space-between;
   padding: 0 8px 0 0;
   position: fixed;
+  z-index: 9;
 `;

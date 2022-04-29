@@ -17,7 +17,7 @@ export const UPDATE_TASK = gql`
   mutation UpdateTask($task: UpdateTaskInput!) {
     updateTask(task: $task) {
       ...TaskChildren
-      childrens {
+      children {
         ...TaskChildren
       }
     }

@@ -6,6 +6,7 @@ import { ReactComponent as SetNextIcon } from "assets/common/ExpandRightIcon.svg
 import { TaskStatus } from "configs/interfaces/common/task.interface";
 import { Tooltip } from "antd";
 import Typo from "view/components/Typo/Typo";
+import { useReward } from "react-rewards";
 
 const steps = ["Ready", "OnGoing", "Done"];
 export function getPrevTaskStatus(status?: TaskStatus) {
@@ -18,7 +19,7 @@ export function getPrevTaskStatus(status?: TaskStatus) {
 }
 export function getNextTaskStatus(status?: TaskStatus) {
   const stepIndex = steps.findIndex((step) => step === status);
-  if (stepIndex === steps.length - 1 || stepIndex === -1) {
+  if (stepIndex === steps.length - 1) {
     return undefined;
   }
   const nextStatus = steps[(stepIndex + 1) % steps.length];
@@ -44,9 +45,19 @@ export default function TaskStatusIconButton({
   setChanged?: React.Dispatch<React.SetStateAction<boolean>>;
   big?: boolean;
 }) {
+  const { reward } = useReward("reward-target", "emoji", {
+    emoji: ["👍", "❤️"],
+    lifetime: 160,
+    elementSize: 14,
+    elementCount: 20,
+    spread: 60,
+  });
   const nextStatus = getToggleTaskStatus(status);
   const handleClick = () => {
     setStatus && nextStatus && setStatus(nextStatus as TaskStatus);
+    if (nextStatus === "Done") {
+      reward();
+    }
     setChanged && setChanged(true);
   };
   return (
@@ -57,7 +68,7 @@ export default function TaskStatusIconButton({
         </Typo>
       }
     >
-      <Button onClick={handleClick} big={big}>
+      <Button onClick={handleClick} big={big} id="reward-target-detail">
         {status === "Ready" && <ReadyIcon />}
         {status === "OnGoing" && <OnGoingIcon />}
         {status === "Done" && <DoneIcon />}

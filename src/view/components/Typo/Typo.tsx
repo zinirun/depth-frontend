@@ -12,10 +12,16 @@ interface ITypoProps extends HTMLAttributes<HTMLElement> {
   color?: string;
   span?: boolean;
   code?: boolean;
+  autoFocus?: boolean;
   borderRadius?: string;
 }
 
-export default function Typo({ children, span, ...typoOptions }: ITypoProps) {
+export default function Typo({
+  children,
+  span,
+  autoFocus,
+  ...typoOptions
+}: ITypoProps) {
   return (
     <>
       {span ? (
@@ -40,6 +46,7 @@ const PText = styled.p<{
   padding: ${(props) => props.padding || 0};
   margin: ${(props) => props.margin || 0};
   color: ${(props) => props.color || SystemColor.Text};
+  word-wrap: break-word;
   font-size: ${(props) =>
       props.fontSize
         ? typeof props.fontSize === "number"
@@ -51,7 +58,7 @@ const PText = styled.p<{
   ${(props) =>
     props.code &&
     `
-    background-color: ${SystemColor.Grey10};
+    background-color: #e9e9e9;
     border-radius: 3px;
     padding: ${props.padding || "2px 4px"};
     `}
@@ -82,7 +89,7 @@ const SpanText = styled.span<{
     ${(props) =>
       props.code &&
       `
-    background-color: ${SystemColor.Grey10};
+    background-color: #e9e9e9;
     border-radius: 3px;
     padding: ${props.padding || "2px 4px"};
     `};

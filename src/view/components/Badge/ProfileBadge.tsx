@@ -27,7 +27,7 @@ export function ProfileBadge({ user, idx, size }: IProfileBadgeProps) {
       placement="bottom"
     >
       <RoundBadge className="profile-badge" background={getBadgeColor(idx)}>
-        <Typo fontSize="0.9rem" color="white">
+        <Typo fontSize="0.8rem" color="white">
           {user.name ? user.name[0] : user.email[0]}
         </Typo>
       </RoundBadge>
@@ -37,22 +37,38 @@ export function ProfileBadge({ user, idx, size }: IProfileBadgeProps) {
 
 interface IProfileBadgesProps extends HTMLAttributes<HTMLDivElement> {
   users: IUserMeta[];
+  overflowCount?: number;
 }
 
-export function ProfileBadges({ users, ...rest }: IProfileBadgesProps) {
+export function ProfileBadges({
+  users,
+  overflowCount = 2,
+  ...rest
+}: IProfileBadgesProps) {
   return (
     <BadgeGroup {...rest}>
-      {users.map((user, idx) => (
+      {users.slice(0, overflowCount).map((user, idx) => (
         <ProfileBadge key={user._id} user={user} idx={idx} />
       ))}
+      {users.length > overflowCount && (
+        <Typo className="overflow-count" fontSize="0.7rem" color="#888">
+          +{users.length - overflowCount}
+        </Typo>
+      )}
     </BadgeGroup>
   );
 }
 
 const BadgeGroup = styled.div`
   display: flex;
+  align-items: center;
+  justify-content: center;
   .profile-badge:not(:first-child) {
-    margin-left: -6px;
+    margin-left: -7px;
+  }
+  .overflow-count {
+    margin-left: 2px;
+    letter-spacing: -1px;
   }
 `;
 
@@ -61,8 +77,8 @@ const RoundBadge = styled.div<{
   background?: string;
 }>`
   user-select: none;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 100%;
   background: ${(props) => props.background || SystemColor.Grey50};
   color: white;

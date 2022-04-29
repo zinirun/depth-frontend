@@ -11,7 +11,7 @@ export interface ITask {
   content?: string;
   project: IProject;
   isTopDepth: boolean;
-  childrens?: ITask[];
+  children?: ITask[];
   involvedUsers: IUser[];
   comments: ITaskComment[];
   deadline?: IDateRange;
