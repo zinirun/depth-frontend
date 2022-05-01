@@ -31,7 +31,6 @@ const Input = forwardRef<HTMLInputElement, IInputProps>((props, ref) => {
 const StyledInput = styled.input`
   border: none;
   outline: none;
-  padding: 6px 4px 6px 2px;
   width: 100%;
   color: #333;
   background: transparent;

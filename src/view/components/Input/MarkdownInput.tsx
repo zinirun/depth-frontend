@@ -31,7 +31,7 @@ export default function MarkdownInput({
               rehypePlugins: [[rehypeSanitize]],
               className: "markdown-preview",
             }}
-            height={205}
+            height={window.innerHeight / 2 - 40}
             autoFocus
           />
           <Typo

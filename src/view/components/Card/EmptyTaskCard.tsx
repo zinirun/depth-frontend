@@ -11,9 +11,9 @@ import Typo from "../Typo/Typo";
 
 export function EmptyTaskCard({ projectId }: { projectId: string }) {
   const { reward } = useReward("reward-target", "emoji", {
-    emoji: ["👍", "🎉", "❤️"],
+    emoji: ["🎉"],
     lifetime: 200,
-    elementSize: 20,
+    elementSize: 16,
     spread: 60,
   });
   const { refetch } = useSyncronizeTask(projectId);

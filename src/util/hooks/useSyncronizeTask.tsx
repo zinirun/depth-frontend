@@ -1,7 +1,11 @@
-import { useLazyQuery } from "@apollo/react-hooks";
+import { useLazyQuery, useMutation } from "@apollo/react-hooks";
+import {
+  IMoveTaskChildInput,
+  MOVE_TASK_CHILD,
+} from "api/mutations/move-task-child";
 import { TASKS_BY_PROJECT_ID } from "api/queries/tasksByProjectId";
 import { ITask } from "configs/interfaces/common/task.interface";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { FlatTaskStore, TaskStore } from "recoil/atoms";
 import errorLogger from "util/logger/error-logger";
@@ -24,7 +28,22 @@ export default function useSyncronizeTask(projectId?: string) {
         },
       }
     );
-  const [needEachTaskReset, setNeedEachTaskReset] = useState<boolean>(true);
+  const [moveTaskChild] = useMutation<
+    { moveTaskChild: ITask[] },
+    { input: IMoveTaskChildInput }
+  >(MOVE_TASK_CHILD);
+
+  const moveChild = async (input: IMoveTaskChildInput) => {
+    try {
+      const { data } = await moveTaskChild({
+        variables: { input },
+      });
+      await refetchTasks();
+      return data?.moveTaskChild;
+    } catch (err) {
+      errorLogger(err as Error);
+    }
+  };
 
   useEffect(() => {
     async function sync() {
@@ -38,7 +57,7 @@ export default function useSyncronizeTask(projectId?: string) {
 
   useEffect(() => {
     if (data) {
-      const result = data?.tasksByProjectId;
+      const result = mapSubProperties(data?.tasksByProjectId);
       if (projectId) {
         setTasksByProjectId({
           ...tasksByProjectId,
@@ -52,6 +71,18 @@ export default function useSyncronizeTask(projectId?: string) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
+
+  function mapSubProperties(tasks: ITask[], parentId?: string) {
+    let _tasks: ITask[] = tasks.map((task) => ({
+      ...task,
+      key: task._id,
+      parentId: parentId || undefined,
+      children: task.children?.length
+        ? mapSubProperties(task.children, task._id)
+        : undefined,
+    }));
+    return _tasks;
+  }
 
   useEffect(() => {
     if (error) {
@@ -75,7 +106,7 @@ export default function useSyncronizeTask(projectId?: string) {
     refetch,
     loading,
     init,
-    needEachTaskReset,
     flatTasks,
+    moveChild,
   };
 }

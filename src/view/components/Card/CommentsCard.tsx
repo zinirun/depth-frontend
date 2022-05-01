@@ -151,8 +151,6 @@ export function CreateCommentBox({
 const Container = styled.div``;
 
 const CommentContainer = styled.div`
-  max-height: 200px;
-  overflow: auto;
   padding: 0 0 8px;
   display: flex;
   flex-direction: column;

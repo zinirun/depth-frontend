@@ -5,7 +5,7 @@ import gql from "graphql-tag";
 export interface ICreateTaskInput {
   projectId: string;
   parentTaskId?: string;
-  sortAfterTaskId?: string;
+  sortIndex?: number;
   title: string;
   content?: string;
   deadline?: IDateRange;

@@ -25,8 +25,6 @@ interface ITaskCardProps {
   parentId?: string;
 }
 
-// TODO: parentId Mapping in set
-
 export function TaskCard({ task, depth, parentId }: ITaskCardProps) {
   const [isDeleteConfirmVisible, setIsDeleteConfirmVisible] =
     useState<boolean>(false);

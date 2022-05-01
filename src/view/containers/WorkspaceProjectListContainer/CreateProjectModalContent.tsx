@@ -73,7 +73,7 @@ export default function CreateProjectModalContent() {
           },
         ]}
       >
-        <Input placeholder="New Project" />
+        <Input placeholder="New Project" autoFocus />
       </Form.Item>
       <Form.Item
         name="accesses"

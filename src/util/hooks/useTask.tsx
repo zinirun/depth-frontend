@@ -179,7 +179,7 @@ export default function useTask(
         toggleNextStatus(status);
       }
       if (command === TaskTitleCommand.NewTaskInSameDepth) {
-        createNewChild(true);
+        createNewChild(true, task._id);
       }
       if (command === TaskTitleCommand.NewTaskInNewDepth) {
         createNewChild(false);
@@ -261,7 +261,10 @@ export default function useTask(
     }
   };
 
-  const createNewChild = async (isInSameDepth: boolean) => {
+  const createNewChild = async (
+    isInSameDepth: boolean,
+    sortAfterId?: string
+  ) => {
     try {
       if (!task?.project?._id) {
         return;
@@ -271,9 +274,20 @@ export default function useTask(
         parentTaskId: isInSameDepth ? parentId : task._id,
         title: "",
       };
+
+      let sortIndex: number | undefined = undefined;
+      if (sortAfterId && parentId) {
+        const sortAfterIndex = flatTasks[parentId]?.children?.findIndex(
+          (task) => task._id === sortAfterId
+        );
+        if (sortAfterIndex !== undefined && sortAfterIndex !== -1) {
+          sortIndex = sortAfterIndex + 1;
+        }
+      }
+
       const { data } = await createTask({
         variables: {
-          task: newChild,
+          task: { ...newChild, sortIndex },
         },
       });
       await refetchTasks();

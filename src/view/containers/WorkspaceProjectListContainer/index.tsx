@@ -11,6 +11,11 @@ import useModal from "util/hooks/useModal";
 import CreateProjectModalContent from "./CreateProjectModalContent";
 
 export function WorkspaceProjectListContainer() {
+  const { close } = useModal();
+  useEffect(() => {
+    return () => close();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const { projects, refetch } = useSyncronizeProjects();
   const { initialize } = useHeader();
   const { setModal } = useModal();

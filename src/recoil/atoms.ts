@@ -1,10 +1,13 @@
 import { IProject } from "configs/interfaces/common/project.interface";
 import { ITask } from "configs/interfaces/common/task.interface";
 import { atom } from "recoil";
+import { recoilPersist } from "recoil-persist";
 import { ICustomizedOption } from "util/hooks/useCustomized";
 import { IHeaderOption } from "view/components/Header";
 import { IModalProps } from "view/components/Modal";
 import { IUser } from "../configs/interfaces/common/user.interface";
+
+const { persistAtom } = recoilPersist();
 
 export const UserState = atom<IUser | null>({
   key: "app/user",
@@ -29,6 +32,7 @@ export const CustomzizedState = atom<
 >({
   key: "project/customized",
   default: {}, // projectId: ICustomizedOption
+  effects: [persistAtom],
 });
 
 // after create children, move children..

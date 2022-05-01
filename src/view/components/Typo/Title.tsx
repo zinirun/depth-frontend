@@ -12,5 +12,6 @@ export default function Title({ children, bold }: ITitleProps) {
 
 const TitleText = styled.p<{ bold?: boolean }>`
   font-size: 2.5rem;
+  margin: 0;
   ${(props) => props.bold && "font-weight: bold;"}
 `;

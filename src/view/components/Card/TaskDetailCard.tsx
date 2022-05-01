@@ -184,6 +184,6 @@ const TaskDetailCard = (props: ITaskDetailCardProps) => {
 export default TaskDetailCard;
 
 const ContentContainer = styled.div`
-  height: 240px;
+  height: 50vh;
   overflow: auto;
 `;

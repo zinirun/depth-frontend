@@ -6,6 +6,8 @@ import { IUser } from "./user.interface";
 export type TaskStatus = "Ready" | "OnGoing" | "Done";
 export interface ITask {
   _id: string;
+  key: string; // in after-mapping (same with _id)
+  parentId?: string; // in after-mapping (top-depth task is undefined)
   author: IUser;
   title?: string;
   content?: string;

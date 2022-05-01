@@ -9,11 +9,12 @@ import { EmptyTaskCard } from "view/components/Card/EmptyTaskCard";
 import { TaskCard } from "view/components/Card/TaskCard";
 import PrimaryContentSection from "view/components/Layout/PrimaryContentSection";
 import { ReactComponent as ExpandIcon } from "assets/common/FoldIcon.svg";
+import errorLogger from "util/logger/error-logger";
 
 export function WorkspaceTaskTreeContainer() {
   const { projectId } = useParams();
   const { syncProject } = useHeader();
-  const { tasks, init, loading } = useSyncronizeTask(projectId);
+  const { tasks, init, loading, moveChild } = useSyncronizeTask(projectId);
   useEffect(() => {
     if (projectId) {
       init();
@@ -24,22 +25,72 @@ export function WorkspaceTaskTreeContainer() {
 
   const _ = useScroll(projectId);
 
+  const handleDrop = async ({
+    dragNode: fromNode,
+    node: toNode,
+    dropPosition,
+    dropToGap,
+  }: any) => {
+    if (!fromNode || !toNode) {
+      return;
+    }
+    const { _id: childId, parentId: fromParentId } = fromNode;
+    const { parentId: destParentId, pos } = toNode;
+    const dropPos = pos.split("-");
+    const dropIndex = dropPosition - Number(dropPos[dropPos.length - 1]);
+
+    let sortIndex = 0;
+    let toParentId = destParentId;
+    if (dropToGap && dropIndex === 1) {
+      // move in children except first child (sortIndex === dropPosition)
+      sortIndex = dropPosition;
+    } else if (!dropToGap && dropIndex === 0) {
+      // move to first child in any depth (toParent === toNode, sortIndex === 0)
+      toParentId = toNode._id;
+      sortIndex = 0;
+    } else if (dropToGap && dropIndex === -1) {
+      // move to top depth
+      toParentId = undefined;
+      sortIndex = 0;
+    } else {
+      // can't catch
+      errorLogger(new Error("cannot calculate drag event"));
+      console.log("-----------------------------");
+      console.log("dropPosition: " + dropPosition);
+      console.log("dropPos: " + Number(dropPos[dropPos.length - 1]));
+      console.log("dropIndex: " + dropIndex);
+      console.log("dropGap: " + dropToGap);
+      console.log("from: " + fromNode.title + " / to: " + toNode.title);
+      return;
+    }
+
+    await moveChild({
+      fromParentId,
+      toParentId,
+      childId,
+      sortIndex,
+    });
+  };
+
   return (
     <PrimaryContentSection padding="24px 32px 24px 8px">
       {!loading &&
         (tasks.length ? (
           <TreeContainer>
             <Tree
+              onDrop={handleDrop}
               draggable={{
                 icon: false,
               }}
-              treeData={tasks as any}
-              titleRender={(task: any) => (
-                <TaskCard depth={1} task={task} key={task._id} />
+              treeData={tasks}
+              titleRender={(task) => (
+                <TaskCard
+                  depth={1}
+                  task={task}
+                  key={task._id}
+                  parentId={task.parentId}
+                />
               )}
-              fieldNames={{
-                key: "_id",
-              }}
               defaultExpandAll
               switcherIcon={<SwitcherIcon />}
               selectable={false}
