@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Modal from "view/components/Modal";
+import AssignPage from "view/pages/LoginPage/Assign";
 import LoginPage from "./view/pages/LoginPage";
 import WorkspacePage from "./view/pages/WorkspacePage";
 
@@ -27,6 +28,7 @@ export function BeforeLoginRoutes() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/login/assign" element={<AssignPage />} />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>

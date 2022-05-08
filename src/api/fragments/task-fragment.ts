@@ -27,6 +27,7 @@ export const TaskFragment = gql`
     comments {
       _id
       author {
+        _id
         name
         email
       }

@@ -1,48 +1,14 @@
-import { useMutation, useQuery } from "@apollo/react-hooks";
 import { Form, Input, Select } from "antd";
-import {
-  CREATE_PROJECT,
-  ICreateProjectInput,
-} from "api/mutations/create-project";
-import { COMPANY_USERS } from "api/queries/companyUsers";
-import { IProject } from "configs/interfaces/common/project.interface";
-import { IUser } from "configs/interfaces/common/user.interface";
-import { useEffect, useState } from "react";
+import { ICreateProjectInput } from "api/mutations/create-project";
 import { useNavigate } from "react-router-dom";
-import useModal from "util/hooks/useModal";
+import useProjectModal from "util/hooks/useProjectModal";
 import errorLogger from "util/logger/error-logger";
 import Button from "view/components/Button";
 import Typo from "view/components/Typo/Typo";
 
 export default function CreateProjectModalContent() {
-  const [users, setUsers] = useState<IUser[]>([]);
+  const { users, createProject, close } = useProjectModal();
   const navigate = useNavigate();
-  const {
-    data: userData,
-    error: userError,
-    refetch: refetchUsers,
-  } = useQuery<{
-    companyUsers: IUser[];
-  }>(COMPANY_USERS);
-  const [createProject] = useMutation<
-    { createProject: IProject },
-    { project: ICreateProjectInput }
-  >(CREATE_PROJECT);
-  const { close } = useModal();
-
-  useEffect(() => {
-    if (userData) {
-      setUsers(userData.companyUsers);
-    }
-  }, [userData]);
-  useEffect(() => {
-    if (userError) {
-      errorLogger(userError);
-    }
-  }, [userError]);
-  useEffect(() => {
-    refetchUsers().catch(() => {});
-  }, [refetchUsers]);
 
   const handleSubmit = async (project: ICreateProjectInput) => {
     try {

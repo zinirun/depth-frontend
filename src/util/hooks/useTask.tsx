@@ -27,6 +27,7 @@ import { useReward } from "react-rewards";
 import useCustomized from "./useCustomized";
 import { useSetRecoilState } from "recoil";
 import { TaskDetailCardCurrentIdState } from "recoil/atoms";
+import { message } from "antd";
 
 export interface IConnectedTaskOptions {
   title: string;
@@ -190,6 +191,7 @@ export default function useTask(
       }
       if (command === TaskTitleCommand.SetViewFocus) {
         setTaskViewFocus(task._id);
+        message.success(`Set view focus to ` + (task.title || "this task"));
       }
     }
   };

@@ -8,6 +8,12 @@ export const CREATE_PROJECT = gql`
   mutation ($project: CreateProjectInput!) {
     createProject(project: $project) {
       _id
+      title
+      accesses {
+        _id
+        name
+        email
+      }
     }
   }
 `;

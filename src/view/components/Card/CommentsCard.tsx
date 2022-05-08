@@ -1,4 +1,4 @@
-import { Form, Input } from "antd";
+import { Dropdown, Form, Input, Menu } from "antd";
 import { ITaskComment } from "configs/interfaces/common/task-comment.interface";
 import styled from "styled-components";
 import { ProfileBadge } from "../Badge/ProfileBadge";
@@ -14,11 +14,19 @@ import errorLogger from "util/logger/error-logger";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useForm } from "antd/lib/form/Form";
 import useUser from "util/hooks/useUser";
-import { IUser } from "configs/interfaces/common/user.interface";
 import moment from "moment";
 import Line from "../Line";
 import ColumnFlexSection from "../Layout/ColumnFlexSection";
 import { ReactComponent as CommentIcon } from "assets/common/CommentIcon.svg";
+import { ReactComponent as EditIcon } from "assets/common/EditIcon.svg";
+import { SystemColor } from "configs/styles/colors";
+import IconButton from "../Button/IconButton";
+import {
+  IUpdateTaskCommentInput,
+  UPDATE_TASK_COMMENT,
+} from "api/mutations/update-task-comment";
+import { DELETE_TASK_COMMENT } from "api/mutations/delete-task-comment";
+import { IUser } from "configs/interfaces/common/user.interface";
 
 interface ICommentsCardProps {
   taskId: string;
@@ -27,13 +35,21 @@ interface ICommentsCardProps {
 }
 
 export default function CommentsCard({
-  comments: originalComments,
+  comments,
   taskId,
   refetch,
 }: ICommentsCardProps) {
-  const { user } = useUser();
-  const [comments, setComments] = useState<ITaskComment[]>(originalComments);
+  const { user: me } = useUser();
   const containerRef = useRef<HTMLDivElement>(null);
+  const [updateComment] = useMutation<
+    { updateTaskComment: ITaskComment },
+    { comment: IUpdateTaskCommentInput }
+  >(UPDATE_TASK_COMMENT);
+  const [deleteComment] = useMutation<
+    { deleteTaskComment: string },
+    { id: string }
+  >(DELETE_TASK_COMMENT);
+
   const scrollToBottom = () => {
     if (containerRef.current) {
       const scrollHeight = containerRef.current.scrollHeight;
@@ -45,17 +61,20 @@ export default function CommentsCard({
   useEffect(() => {
     scrollToBottom();
   }, [comments]);
-  const handleAfterCreate = async (content: string) => {
+
+  const handleRefetch = async () => {
     refetch && (await refetch());
-    setComments([
-      ...comments,
-      {
-        _id: "",
-        author: user as IUser,
-        content,
-      },
-    ]);
   };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteComment({ variables: { id } });
+      await handleRefetch();
+    } catch (err) {
+      errorLogger(err as Error);
+    }
+  };
+
   return (
     <Container>
       <RowFlexSection padding="0 0 8px" justifyContent="flex-start">
@@ -67,34 +86,72 @@ export default function CommentsCard({
       <CommentContainer ref={containerRef}>
         {comments.map((comment, idx) => (
           <Fragment key={`tc-${idx}`}>
-            <ColumnFlexSection>
-              <RowFlexSection
-                className="task-comment"
-                alignItems="center"
-                justifyContent="flex-start"
-                gap={8}
-              >
-                <ProfileBadge user={comment.author} />
-                <Typo fontSize="0.75rem">{comment.content}</Typo>
-              </RowFlexSection>
-              <RowFlexSection justifyContent="flex-end">
-                {comment.createdAt && (
-                  <Typo fontSize="0.6rem" color="#aaa">
-                    {moment(comment.createdAt).local().format("YY/MM/DD HH:mm")}
-                  </Typo>
-                )}
-              </RowFlexSection>
-            </ColumnFlexSection>
+            <Comment comment={comment} me={me} handleDelete={handleDelete} />
             {idx !== comments.length - 1 && <Line />}
           </Fragment>
         ))}
       </CommentContainer>
-      <CreateCommentBox taskId={taskId} afterCreate={handleAfterCreate} />
+      <CreateCommentBox taskId={taskId} afterCreate={handleRefetch} />
     </Container>
   );
 }
 
-export function CreateCommentBox({
+interface ICommentProps {
+  comment: ITaskComment;
+  me?: IUser;
+  handleDelete: (id: string) => Promise<void>;
+}
+
+function Comment({ comment, me, handleDelete }: ICommentProps) {
+  const [isEditing, setIsEditing] = useState(false);
+
+  return (
+    <ColumnFlexSection>
+      <RowFlexSection
+        className="task-comment"
+        alignItems="center"
+        justifyContent="flex-start"
+        gap={8}
+      >
+        <ProfileBadge user={comment.author} />
+        {isEditing ? (
+          <Form>
+            <Form.Item name="content" initialValue={comment.content} noStyle>
+              <Input size="small" />
+            </Form.Item>
+          </Form>
+        ) : (
+          <Typo fontSize="0.75rem">{comment.content}</Typo>
+        )}
+      </RowFlexSection>
+      <RowFlexSection justifyContent="flex-end" gap={3}>
+        {me && me._id === comment.author._id && (
+          <Dropdown
+            overlay={() =>
+              MyCommentOverlay({
+                id: comment._id,
+                handleDelete: () => handleDelete(comment._id),
+                handleSetEditing: () => setIsEditing(true),
+              })
+            }
+            trigger={["click"]}
+          >
+            <IconButton>
+              <EditIcon width={16} height={16} />
+            </IconButton>
+          </Dropdown>
+        )}
+        {comment.createdAt && (
+          <Typo fontSize="0.6rem" color="#aaa">
+            {moment(comment.createdAt).local().format("YY/MM/DD HH:mm")}
+          </Typo>
+        )}
+      </RowFlexSection>
+    </ColumnFlexSection>
+  );
+}
+
+function CreateCommentBox({
   taskId,
   afterCreate,
 }: {
@@ -128,34 +185,82 @@ export function CreateCommentBox({
     }
   };
   return (
-    <Form onFinish={handleSubmit} form={form}>
-      <RowFlexSection padding="8px 0 0">
-        <Form.Item
-          name="content"
-          rules={[{ required: true, message: "Provide any words" }]}
-          noStyle
-        >
-          <Input
-            suffix={
-              <CreateCommentButton onClick={() => form.submit()}>
-                <CommentAddIcon />
-              </CreateCommentButton>
-            }
-          />
-        </Form.Item>
-      </RowFlexSection>
-    </Form>
+    <CreateCommentContainer>
+      <Form onFinish={handleSubmit} form={form}>
+        <RowFlexSection padding="8px 0 0">
+          <Form.Item
+            name="content"
+            rules={[{ required: true, message: "Provide any words" }]}
+            noStyle
+          >
+            <Input
+              suffix={
+                <CreateCommentButton onClick={() => form.submit()}>
+                  <CommentAddIcon />
+                </CreateCommentButton>
+              }
+            />
+          </Form.Item>
+        </RowFlexSection>
+      </Form>
+    </CreateCommentContainer>
   );
 }
 
-const Container = styled.div``;
+interface IMyCommentOverlayProps {
+  id: string;
+  handleDelete: (id: string) => Promise<void>;
+  handleSetEditing: () => void;
+}
+
+const MyCommentOverlay = ({
+  id,
+  handleDelete,
+  handleSetEditing,
+}: IMyCommentOverlayProps) => {
+  return (
+    <Menu
+      items={
+        [
+          // {
+          //   label: (
+          //     <Typo fontSize="0.8rem" onClick={handleSetEditing}>
+          //       Edit
+          //     </Typo>
+          //   ),
+          // },
+          {
+            label: (
+              <Typo
+                fontSize="0.8rem"
+                color={SystemColor.Error}
+                onClick={() => handleDelete(id)}
+              >
+                Delete
+              </Typo>
+            ),
+          },
+        ] as any
+      }
+    />
+  );
+};
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
 
 const CommentContainer = styled.div`
   padding: 0 0 8px;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  max-height: calc(100vh - (50vh + 210px));
+  overflow: auto;
 `;
+
+const CreateCommentContainer = styled.div``;
 
 const CreateCommentButton = styled.span`
   cursor: pointer;

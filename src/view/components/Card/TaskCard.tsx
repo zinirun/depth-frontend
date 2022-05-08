@@ -163,11 +163,11 @@ export function TaskCard({ task, depth, parentId }: ITaskCardProps) {
                         moment(deadline.to).local().format("YY/MM/DD")}
                     </Typo>
                   )}
-                  {comments?.length ? (
+                  {task.comments?.length ? (
                     <RowFlexSection>
                       <CommentIcon width={18} height={18} />
                       <Typo color="#aaa" fontSize="0.65rem">
-                        {comments.length}
+                        {task.comments.length}
                       </Typo>
                     </RowFlexSection>
                   ) : (

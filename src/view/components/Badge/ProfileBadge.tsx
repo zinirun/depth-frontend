@@ -45,30 +45,42 @@ export function ProfileBadges({
   overflowCount = 2,
   ...rest
 }: IProfileBadgesProps) {
+  const profiles = [...users].reverse();
   return (
-    <BadgeGroup {...rest}>
-      {users.slice(0, overflowCount).map((user, idx) => (
-        <ProfileBadge key={user._id} user={user} idx={idx} />
-      ))}
+    <BadgeGroupContainer {...rest}>
+      <BadgeGroup>
+        {profiles.slice(-overflowCount).map((user, idx) => (
+          <ProfileBadge key={user._id} user={user} idx={idx} />
+        ))}
+      </BadgeGroup>
       {users.length > overflowCount && (
         <Typo className="overflow-count" fontSize="0.7rem" color="#888">
           +{users.length - overflowCount}
         </Typo>
       )}
-    </BadgeGroup>
+    </BadgeGroupContainer>
   );
 }
+
+const BadgeGroupContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  .overflow-count {
+    letter-spacing: -1px;
+  }
+`;
 
 const BadgeGroup = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  .profile-badge:not(:first-child) {
-    margin-left: -7px;
-  }
-  .overflow-count {
-    margin-left: 2px;
-    letter-spacing: -1px;
+  flex-direction: row-reverse;
+  margin-right: 7px;
+  .profile-badge {
+    position: relative;
+    margin-right: -7px;
   }
 `;
 

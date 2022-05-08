@@ -26,6 +26,7 @@ export default function useHeader() {
         ...header,
         operation: "project",
         project: data?.project,
+        projectId: data?.project._id,
       });
     } catch (err) {
       errorLogger(err as Error);

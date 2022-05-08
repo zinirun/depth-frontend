@@ -1,8 +1,9 @@
 import styled from "styled-components";
 import RowFlexSection from "../Layout/RowFlexSection";
 import { SystemColor } from "configs/styles/colors";
+import { ButtonHTMLAttributes } from "react";
 
-interface IButtonProps {
+interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   block?: boolean;
   children?: React.ReactNode;
@@ -22,9 +23,11 @@ export default function Button({
   fontSize,
   hoverBlueOutline,
   type,
+  ...rest
 }: IButtonProps) {
   return (
     <NormalButton
+      {...rest}
       onClick={onClick ? onClick : () => {}}
       block={block}
       borderless={borderless}

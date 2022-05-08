@@ -9,9 +9,23 @@ import { IUser } from "../configs/interfaces/common/user.interface";
 
 const { persistAtom } = recoilPersist();
 
-export const UserState = atom<IUser | null>({
+export const UserState = atom<IUser | undefined>({
   key: "app/user",
-  default: null,
+  default: undefined,
+});
+
+export const UserPendingState = atom<
+  | {
+      id: string;
+      email: string;
+      name?: string;
+      authType: string;
+      companyName: string;
+    }
+  | undefined
+>({
+  key: "app/user-pending",
+  default: undefined,
 });
 
 export const HeaderState = atom<IHeaderOption>({

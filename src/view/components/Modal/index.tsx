@@ -6,6 +6,7 @@ import Typo from "../Typo/Typo";
 import getSizeByProp from "../_util/getSizeByProp";
 import useModal from "util/hooks/useModal";
 import CloseIconButton from "../Button/IconButton/CloseIconButton";
+import Draggable from "react-draggable";
 
 export interface IModalProps {
   title?: string;
@@ -53,6 +54,7 @@ const ModalContainer = styled.div<{
   max-width: ${(props) =>
     `min(90%, ${getSizeByProp(props.maxWidth, "350px")})`};
   width: ${(props) => getSizeByProp(props.width, "100%")};
+  z-index: 99;
 `;
 
 const ModalContentContainer = styled.div`

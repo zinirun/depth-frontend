@@ -110,6 +110,9 @@ const TaskDetailCard = (props: ITaskDetailCardProps) => {
       headerStyle={{
         display: "none",
       }}
+      bodyStyle={{
+        overflow: "hidden",
+      }}
       width={560}
       mask={false}
     >
@@ -175,7 +178,7 @@ const TaskDetailCard = (props: ITaskDetailCardProps) => {
       <CommentsCard
         taskId={task._id}
         refetch={refetch}
-        comments={comments || []}
+        comments={task.comments || []}
       />
     </Drawer>
   );

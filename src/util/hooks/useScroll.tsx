@@ -11,6 +11,8 @@ export default function useScroll(projectId?: string) {
   const { taskEventFocus, init } = useEventFocus();
   const { taskViewFocus } = useCustomized(projectId);
   const [scrollTarget, setScrollTarget] = useState<HTMLDivElement | null>(null);
+  const [scrolledViewFocus, setScrolledViewFocus] = useState<boolean>(false);
+  const [scrolledEventFocus, setScrolledEventFocus] = useState<boolean>(false);
 
   useEffect(() => {
     const dom = document.querySelector(
@@ -24,20 +26,38 @@ export default function useScroll(projectId?: string) {
   }, []);
 
   useEffect(() => {
-    if (projectId && taskEventFocus && flatTasks[projectId][taskEventFocus]) {
-      scrollAndFocusByTaskId(taskEventFocus);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [taskEventFocus, flatTasks]);
-
-  useEffect(() => {
-    if (projectId && taskViewFocus && flatTasks[projectId][taskViewFocus]) {
+    if (
+      !scrolledViewFocus &&
+      projectId &&
+      taskViewFocus &&
+      flatTasks[projectId] &&
+      flatTasks[projectId][taskViewFocus]
+    ) {
       scrollAndFocusByTaskId(taskViewFocus);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [taskViewFocus, flatTasks]);
 
-  const scrollAndFocusByTaskId = (taskId: string) => {
+  useEffect(() => {
+    if (
+      !scrolledEventFocus &&
+      projectId &&
+      taskEventFocus &&
+      flatTasks[projectId] &&
+      flatTasks[projectId][taskEventFocus]
+    ) {
+      scrollAndFocusByTaskId(taskEventFocus, true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scrolledEventFocus, taskEventFocus, flatTasks]);
+
+  useEffect(() => {
+    if (taskEventFocus) {
+      setScrolledEventFocus(false);
+    }
+  }, [taskEventFocus]);
+
+  const scrollAndFocusByTaskId = (taskId: string, isEventFocus?: boolean) => {
     if (!scrollTarget || !taskId) {
       return;
     }
@@ -50,8 +70,12 @@ export default function useScroll(projectId?: string) {
       });
       const input = dom.getElementsByTagName("input");
       input?.length && input[0].focus();
-      init();
-      return;
+      if (isEventFocus) {
+        init();
+        setScrolledEventFocus(true);
+      } else {
+        setScrolledViewFocus(true);
+      }
     }
   };
 

@@ -11,4 +11,5 @@ export enum SystemColor {
   Green30 = "#60d756",
   Border = "#c0c0c0",
   Text = "#333",
+  Error = "#E05E55",
 }

@@ -15,6 +15,9 @@ import ShortcutGuide from "./ShortcutGuide";
 import ProjectOverlay from "./ProjectOverlay";
 import LogoOverlay from "./LogoOverlay";
 import useUser from "util/hooks/useUser";
+import { ProfileBadges } from "../Badge/ProfileBadge";
+import useModal from "util/hooks/useModal";
+import UpdateProjectModalContent from "./UpdateProjectModalContent";
 
 export interface IHeaderOption {
   operation?: "project";
@@ -25,6 +28,18 @@ export interface IHeaderOption {
 export function Header() {
   const { header } = useHeader();
   const { logout } = useUser();
+  const { setModal } = useModal();
+
+  const openUpdateProjectModal = () => {
+    if (header.projectId) {
+      setModal({
+        visible: true,
+        title: "Edit Project",
+        content: <UpdateProjectModalContent id={header.projectId} />,
+      });
+    }
+  };
+
   return (
     <NavSection>
       <RowFlexSection gap={0}>
@@ -39,7 +54,10 @@ export function Header() {
           </TransparentButton>
         </Dropdown>
         {header.operation === "project" && (
-          <Dropdown overlay={ProjectOverlay} trigger={["click"]}>
+          <Dropdown
+            overlay={() => ProjectOverlay({ openUpdateProjectModal })}
+            trigger={["click"]}
+          >
             <TransparentButton
               icon={<ExpandIcon />}
               hoverBackground="#111"
@@ -53,7 +71,10 @@ export function Header() {
           </Dropdown>
         )}
       </RowFlexSection>
-      <RowFlexSection>
+      <RowFlexSection gap={8}>
+        {header.operation === "project" && header.project && (
+          <ProfileBadges users={header.project.accesses} overflowCount={4} />
+        )}
         <Popover
           title={
             <RowFlexSection justifyContent="space-between" padding="6px 0 4px">
