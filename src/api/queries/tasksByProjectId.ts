@@ -28,6 +28,18 @@ export const TASKS_BY_PROJECT_ID = gql`
                           ...TaskChildren
                           children {
                             ...TaskChildren
+                            children {
+                              ...TaskChildren
+                              children {
+                                ...TaskChildren
+                                children {
+                                  ...TaskChildren
+                                  children {
+                                    ...TaskChildren
+                                  }
+                                }
+                              }
+                            }
                           }
                         }
                       }

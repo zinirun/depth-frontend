@@ -2,13 +2,13 @@ import ClassName from "configs/styles/class-names";
 import { SystemColor } from "configs/styles/colors";
 import { Size } from "configs/styles/size";
 import styled from "styled-components";
-import { WorkspaceProjectListContainer } from "view/containers/WorkspaceProjectListContainer";
+import { WorkspaceMainContainer } from "view/containers/WorkspaceMainContainer";
 import { WorkspaceTaskTreeContainer } from "view/containers/WorkspaceTaskTreeContainer";
 import { Header } from "../../components/Header";
 import FullScreen from "../../components/Layout/FullScreen";
 
 interface IWorkspacePageProps {
-  operation: "task-tree" | "project-list";
+  operation: "task-tree" | "main";
 }
 
 export default function WorkspacePage({ operation }: IWorkspacePageProps) {
@@ -18,7 +18,7 @@ export default function WorkspacePage({ operation }: IWorkspacePageProps) {
       <TransparentRewardSection id="reward-target" />
       <ContentContainer className={ClassName.Workspace.ContentContainer}>
         {operation === "task-tree" && <WorkspaceTaskTreeContainer />}
-        {operation === "project-list" && <WorkspaceProjectListContainer />}
+        {operation === "main" && <WorkspaceMainContainer />}
       </ContentContainer>
     </FullScreen>
   );

@@ -9,15 +9,12 @@ export function AfterLoginRoutes() {
     <BrowserRouter>
       <Modal />
       <Routes>
-        <Route
-          path="/workspace/projects"
-          element={<WorkspacePage operation="project-list" />}
-        />
+        <Route path="/workspace" element={<WorkspacePage operation="main" />} />
         <Route
           path="/workspace/tasktree/:projectId"
           element={<WorkspacePage operation="task-tree" />}
         />
-        <Route path="*" element={<Navigate to="/workspace/projects" />} />
+        <Route path="*" element={<Navigate to="/workspace" />} />
       </Routes>
     </BrowserRouter>
   );

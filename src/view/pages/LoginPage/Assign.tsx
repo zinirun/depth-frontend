@@ -3,7 +3,7 @@ import ColumnFlexSection from "../../components/Layout/ColumnFlexSection";
 import FullScreen from "../../components/Layout/FullScreen";
 import Typo from "view/components/Typo/Typo";
 import moment from "moment";
-import { Form, Input, message } from "antd";
+import { Form, Input } from "antd";
 import { SystemColor } from "configs/styles/colors";
 import { useMutation } from "@apollo/react-hooks";
 import { ASSIGN_INVITE_WITH_OAUTH } from "api/mutations/assign-invite";

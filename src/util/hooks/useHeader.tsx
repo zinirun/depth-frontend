@@ -4,6 +4,7 @@ import { IProject } from "configs/interfaces/common/project.interface";
 import { useRecoilState } from "recoil";
 import { HeaderState } from "recoil/atoms";
 import errorLogger from "util/logger/error-logger";
+import { HeaderOperation } from "view/components/Header";
 
 export default function useHeader() {
   const [header, setHeader] = useRecoilState(HeaderState);
@@ -11,6 +12,13 @@ export default function useHeader() {
     { project: IProject },
     { id: string }
   >(PROJECT);
+
+  const setOperation = (operation: HeaderOperation) => {
+    setHeader({
+      ...header,
+      operation,
+    });
+  };
 
   const syncProject = async (projectId: string) => {
     if (!projectId) {
@@ -41,5 +49,6 @@ export default function useHeader() {
     syncProject,
     loading,
     initialize,
+    setOperation,
   };
 }

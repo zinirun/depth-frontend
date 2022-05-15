@@ -13,7 +13,7 @@ const GridSection = styled.div<{
   grid-template-columns: ${(props) =>
     props.template
       ? props.template
-      : `repeat(auto-fill, minmax(${props.autoFillSize || 256}px, 1fr))`};
+      : `repeat(auto-fill, minmax(${props.autoFillSize || 220}px, 1fr))`};
   width: ${(props) =>
     props.width
       ? typeof props.width === "number"

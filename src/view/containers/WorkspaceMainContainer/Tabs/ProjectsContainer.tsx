@@ -1,31 +1,19 @@
+import { useEffect } from "react";
+import useModal from "util/hooks/useModal";
 import useSyncronizeProjects from "util/hooks/useSyncronizeProjects";
 import Button from "view/components/Button";
-import ProjectCard from "view/components/Card/ProjectCard";
-import GridSection from "view/components/Layout/GridSection";
-import PrimaryContentSection from "view/components/Layout/PrimaryContentSection";
 import RowFlexSection from "view/components/Layout/RowFlexSection";
+import CreateProjectModalContent from "../CreateProjectModalContent";
 import { ReactComponent as AddIcon } from "assets/common/AddBlackIcon.svg";
-import { useEffect } from "react";
-import useHeader from "util/hooks/useHeader";
-import useModal from "util/hooks/useModal";
-import CreateProjectModalContent from "./CreateProjectModalContent";
+import GridSection from "view/components/Layout/GridSection";
+import ProjectCard from "view/components/Card/ProjectCard";
 
-export function WorkspaceProjectListContainer() {
-  const { close } = useModal();
-  useEffect(() => {
-    return () => close();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+export default function ProjectsContainer() {
   const { projects, refetch } = useSyncronizeProjects();
-  const { initialize } = useHeader();
   const { setModal } = useModal();
   useEffect(() => {
     refetch().catch(() => {});
   }, [refetch]);
-  useEffect(() => {
-    initialize();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handleClickCreate = () => {
     setModal({
@@ -34,9 +22,8 @@ export function WorkspaceProjectListContainer() {
       content: <CreateProjectModalContent />,
     });
   };
-
   return (
-    <PrimaryContentSection padding="24px">
+    <>
       <RowFlexSection justifyContent="flex-start" margin="0 0 16px">
         <Button
           borderless
@@ -53,6 +40,6 @@ export function WorkspaceProjectListContainer() {
           <ProjectCard key={project._id} project={project} />
         ))}
       </GridSection>
-    </PrimaryContentSection>
+    </>
   );
 }

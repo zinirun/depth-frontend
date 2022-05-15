@@ -55,7 +55,7 @@ export default function CreateProjectModalContent() {
         >
           {users.map((user) => (
             <Select.Option value={user._id} key={user._id}>
-              {user.name} ({user.email})
+              {user.name ? `${user.name} (${user.email})` : user.email}
             </Select.Option>
           ))}
         </Select>

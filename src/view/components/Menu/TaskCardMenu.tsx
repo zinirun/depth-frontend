@@ -147,7 +147,7 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
                 key={user._id}
                 disabled={task?.author._id === user._id}
               >
-                {user.name} ({user.email})
+                {user.name ? `${user.name} (${user.email})` : user.email}
               </Select.Option>
             ))}
           </Select>

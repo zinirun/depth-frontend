@@ -12,6 +12,7 @@ interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fontSize?: string | number;
   hoverBlueOutline?: boolean;
   type?: "button" | "submit" | "reset";
+  size?: "small" | "medium";
 }
 
 export default function Button({
@@ -23,6 +24,8 @@ export default function Button({
   fontSize,
   hoverBlueOutline,
   type,
+  size,
+  disabled,
   ...rest
 }: IButtonProps) {
   return (
@@ -34,6 +37,8 @@ export default function Button({
       fontSize={fontSize}
       hoverBlueOutline={hoverBlueOutline}
       type={type}
+      size={size}
+      disabled={disabled}
     >
       {icon ? (
         <RowFlexSection gap={3}>
@@ -94,16 +99,18 @@ const NormalButton = styled.button<{
   borderless?: boolean;
   fontSize?: string | number;
   hoverBlueOutline?: boolean;
+  size?: "small" | "medium";
+  disabled?: boolean;
 }>`
-  color: ${SystemColor.Text};
+  color: ${(props) => (props.disabled ? "#bbb" : SystemColor.Text)};
   border: ${(props) =>
     props.borderless ? "none" : "1px solid rgba(15, 15, 15, 0.15)"};
   border-radius: 5px;
-  padding: 7px 10px;
-  font-size: 0.9rem;
+  padding: ${(props) => (props.size === "small" ? "2px 6px" : "7px 10px")};
+  font-size: ${(props) => (props.size === "small" ? "0.75rem" : "0.9rem")};
   background-color: white;
   box-shadow: rgb(15 15 15 / 5%) 0px 1px 2px;
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   ${(props) => props.block && "width: 100%;"}
   ${(props) =>
     props.fontSize &&

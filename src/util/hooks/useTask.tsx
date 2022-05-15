@@ -21,7 +21,7 @@ import omitTypename from "view/components/_util/omitTypename";
 import useDebounce from "view/components/_util/useDebounce";
 import useSyncronizeTask from "./useSyncronizeTask";
 import { ITaskComment } from "configs/interfaces/common/task-comment.interface";
-import useFocus from "./useEventFocus";
+import useEventFocus from "./useEventFocus";
 import { DELETE_TASK } from "api/mutations/delete-task";
 import { useReward } from "react-rewards";
 import useCustomized from "./useCustomized";
@@ -78,7 +78,7 @@ export default function useTask(
   const projectId = originalTask.project?._id;
 
   const { flatTasks, refetch: refetchTasks } = useSyncronizeTask(projectId);
-  const { setTaskEventFocus } = useFocus();
+  const { setTaskEventFocus } = useEventFocus();
   const { setTaskViewFocus } = useCustomized(projectId);
 
   const task = flatTasks[originalTask._id];

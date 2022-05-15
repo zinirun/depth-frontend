@@ -70,7 +70,26 @@ export const FlatTaskStore = atom<Record<string, Record<string, ITask>>>({
   default: {},
 });
 
+export const MyTasksState = atom<{
+  today: ITask[];
+  thisWeek: ITask[];
+  recent: ITask[];
+}>({
+  key: "workspace/my-tasks",
+  default: {
+    today: [],
+    thisWeek: [],
+    recent: [],
+  },
+});
+
 export const TaskDetailCardCurrentIdState = atom<string | undefined>({
   key: "task/detail-card",
   default: undefined,
+});
+
+export const WorkspaceMainTabKeyState = atom<string>({
+  key: "workspace/main-tab-key",
+  default: "projects",
+  effects: [persistAtom],
 });

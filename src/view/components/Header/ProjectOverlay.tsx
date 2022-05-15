@@ -3,24 +3,30 @@ import Typo from "../Typo/Typo";
 
 interface IProjectOverlayProps {
   openUpdateProjectModal?: () => void;
+  showEdit?: boolean;
 }
 
-const ProjectOverlay = ({ openUpdateProjectModal }: IProjectOverlayProps) => {
+const ProjectOverlay = ({
+  openUpdateProjectModal,
+  showEdit,
+}: IProjectOverlayProps) => {
   return (
     <Menu
       items={
         [
-          {
-            label: (
-              <Typo fontSize="0.8rem" onClick={openUpdateProjectModal}>
-                Edit Project
-              </Typo>
-            ),
-          },
+          showEdit
+            ? {
+                label: (
+                  <Typo fontSize="0.8rem" onClick={openUpdateProjectModal}>
+                    Edit Project
+                  </Typo>
+                ),
+              }
+            : undefined,
           {
             label: <Typo fontSize="0.8rem">Trash bin</Typo>,
           },
-        ] as any
+        ].filter((v) => v) as any
       }
     />
   );

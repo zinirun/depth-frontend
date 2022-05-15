@@ -71,7 +71,7 @@ export default function UpdateProjectModalContent({ id }: { id: string }) {
                   key={user._id}
                   disabled={user._id === me?._id}
                 >
-                  {user.name} ({user.email})
+                  {user.name ? `${user.name} (${user.email})` : user.email}
                 </Select.Option>
               ))}
             </Select>

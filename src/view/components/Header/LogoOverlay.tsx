@@ -3,13 +3,21 @@ import Typo from "../Typo/Typo";
 
 interface ILogoOverlayProps {
   logout?: () => Promise<void>;
+  goHome?: () => void;
 }
 
-const LogoOverlay = ({ logout }: ILogoOverlayProps) => {
+const LogoOverlay = ({ logout, goHome }: ILogoOverlayProps) => {
   return (
     <Menu
       items={
         [
+          {
+            label: (
+              <Typo fontSize="0.8rem" onClick={goHome}>
+                Home
+              </Typo>
+            ),
+          },
           {
             label: (
               <Typo fontSize="0.8rem" onClick={logout}>
