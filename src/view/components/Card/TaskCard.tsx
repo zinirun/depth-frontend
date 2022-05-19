@@ -139,7 +139,7 @@ export function TaskCard({ task, depth, parentId }: ITaskCardProps) {
                     onKeyDown={handleCaptureShortcut}
                   />
                   <ProfileBadges
-                    users={[task.author, ...involvedUsers]}
+                    users={involvedUsers}
                     onClick={openMenuWithAssignMember}
                   />
                 </RowFlexSection>

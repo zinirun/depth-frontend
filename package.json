@@ -41,7 +41,10 @@
     "start": "craco start",
     "build": "GENERATE_SOURCEMAP=false craco build",
     "test": "craco test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "upload:prod": "aws s3 sync ./build s3://depth-frontend",
+    "invalidate:prod": "aws cloudfront create-invalidation --distribution-id EKBAW4Y9RR1BD --paths / /index.html /manifest.json /favicon.ico",
+    "deploy:prod": "yarn build; yarn upload:prod; yarn invalidate:prod"
   },
   "eslintConfig": {
     "extends": [

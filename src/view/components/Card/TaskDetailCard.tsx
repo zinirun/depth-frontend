@@ -8,7 +8,7 @@ import { useRecoilValue } from "recoil";
 import { TaskDetailCardCurrentIdState } from "recoil/atoms";
 import styled from "styled-components";
 import { IConnectedTaskOptions } from "util/hooks/useTask";
-import { ProfileBadges } from "../Badge/ProfileBadge";
+import { ProfileBadge, ProfileBadges } from "../Badge/ProfileBadge";
 import CloseIconButton from "../Button/IconButton/CloseIconButton";
 import TaskStatusIconButton from "../Button/IconButton/TaskStatusIconButton";
 import MarkdownInput from "../Input/MarkdownInput";
@@ -136,7 +136,6 @@ const TaskDetailCard = (props: ITaskDetailCardProps) => {
       </RowFlexSection>
 
       <RowFlexSection
-        gap={2}
         alignItems="flex-start"
         justifyContent="space-between"
         padding="6px 0"
@@ -162,13 +161,26 @@ const TaskDetailCard = (props: ITaskDetailCardProps) => {
             )}
           </Typo>
         </Popover>
-        <Popover {...popoverProps}>
-          <ProfileBadges
-            users={[task.author, ...involvedUsers]}
-            onClick={openMenuWithAssignMember}
-            overflowCount={5}
-          />
-        </Popover>
+        <RowFlexSection gap={8}>
+          <RowFlexSection gap={4}>
+            <Typo fontSize="0.7rem" color="#777">
+              Involved
+            </Typo>
+            <Popover {...popoverProps}>
+              <ProfileBadges
+                users={involvedUsers}
+                onClick={openMenuWithAssignMember}
+                overflowCount={5}
+              />
+            </Popover>
+          </RowFlexSection>
+          <RowFlexSection gap={4}>
+            <Typo fontSize="0.7rem" color="#777">
+              Created by
+            </Typo>
+            <ProfileBadge user={task.author} />
+          </RowFlexSection>
+        </RowFlexSection>
       </RowFlexSection>
       <Line space={8} />
       <ContentContainer>
