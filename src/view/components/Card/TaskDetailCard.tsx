@@ -165,7 +165,7 @@ const TaskDetailCard = (props: ITaskDetailCardProps) => {
           <RowFlexSection gap={4}>
             {involvedUsers?.length ? (
               <Typo fontSize="0.65rem" color="#777">
-                Involved
+                Assigned to
               </Typo>
             ) : (
               <></>
@@ -187,7 +187,7 @@ const TaskDetailCard = (props: ITaskDetailCardProps) => {
                   padding="4px 8px"
                   onClick={openMenuWithAssignMember}
                 >
-                  Involve members
+                  Assign members
                 </Typo>
               )}
             </Popover>
