@@ -163,10 +163,12 @@ const TaskDetailCard = (props: ITaskDetailCardProps) => {
         </Popover>
         <RowFlexSection gap={8}>
           <RowFlexSection gap={4}>
-            {involvedUsers?.length && (
+            {involvedUsers?.length ? (
               <Typo fontSize="0.65rem" color="#777">
                 Involved
               </Typo>
+            ) : (
+              <></>
             )}
             <Popover {...popoverProps}>
               {involvedUsers?.length ? (
@@ -183,15 +185,11 @@ const TaskDetailCard = (props: ITaskDetailCardProps) => {
                   span
                   borderRadius="20px"
                   padding="4px 8px"
+                  onClick={openMenuWithAssignMember}
                 >
                   Involve members
                 </Typo>
               )}
-              <ProfileBadges
-                users={involvedUsers}
-                onClick={openMenuWithAssignMember}
-                overflowCount={5}
-              />
             </Popover>
           </RowFlexSection>
           <RowFlexSection gap={4}>
