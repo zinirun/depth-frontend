@@ -9,6 +9,7 @@ export const PROJECT = gql`
         _id
         email
         name
+        emoji
       }
       manager {
         _id

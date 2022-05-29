@@ -15,6 +15,7 @@
     "@uiw/react-md-editor": "^3.12.1",
     "antd": "^4.20.2",
     "craco-less": "^2.0.0",
+    "emoji-picker-react": "^3.5.1",
     "graphql": "^16.3.0",
     "graphql-tag": "^2.12.6",
     "html-react-parser": "^1.4.12",

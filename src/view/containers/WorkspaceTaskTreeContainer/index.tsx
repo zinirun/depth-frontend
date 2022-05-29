@@ -11,6 +11,7 @@ import PrimaryContentSection from "view/components/Layout/PrimaryContentSection"
 import { ReactComponent as ExpandIcon } from "assets/common/FoldIcon.svg";
 import errorLogger from "util/logger/error-logger";
 import useModal from "util/hooks/useModal";
+import useCustomized from "util/hooks/useCustomized";
 
 export function WorkspaceTaskTreeContainer() {
   const { close } = useModal();
@@ -20,7 +21,8 @@ export function WorkspaceTaskTreeContainer() {
   }, []);
   const { projectId } = useParams();
   const { syncProject } = useHeader();
-  const { tasks, init, loading, moveChild } = useSyncronizeTask(projectId);
+  const { tasks, init, loading, moveChild, filterDoneTasks } =
+    useSyncronizeTask(projectId);
   useEffect(() => {
     if (projectId) {
       init();
@@ -29,7 +31,9 @@ export function WorkspaceTaskTreeContainer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
-  const _ = useScroll(projectId);
+  useScroll(projectId);
+  const { layout, hideDone } = useCustomized(projectId);
+  const customizedTasks = hideDone ? filterDoneTasks(tasks) : tasks;
 
   const handleDrop = async ({
     dragNode: fromNode,
@@ -83,25 +87,50 @@ export function WorkspaceTaskTreeContainer() {
       {!loading &&
         (tasks.length ? (
           <TreeContainer>
-            <Tree
-              onDrop={handleDrop}
-              draggable={{
-                icon: false,
-              }}
-              treeData={tasks}
-              titleRender={(task) => (
-                <TaskCard
-                  depth={1}
-                  task={task}
-                  key={task._id}
-                  parentId={task.parentId}
+            {layout === "horizontal" ? (
+              customizedTasks.map((topTask) => (
+                <Tree
+                  key={topTask._id}
+                  onDrop={handleDrop}
+                  draggable={{
+                    icon: false,
+                  }}
+                  treeData={[topTask]}
+                  titleRender={(task) => (
+                    <TaskCard
+                      depth={1}
+                      task={task}
+                      key={task._id}
+                      parentId={task.parentId}
+                    />
+                  )}
+                  defaultExpandAll
+                  autoExpandParent
+                  switcherIcon={<SwitcherIcon />}
+                  selectable={false}
                 />
-              )}
-              defaultExpandAll
-              autoExpandParent
-              switcherIcon={<SwitcherIcon />}
-              selectable={false}
-            />
+              ))
+            ) : (
+              <Tree
+                onDrop={handleDrop}
+                draggable={{
+                  icon: false,
+                }}
+                treeData={customizedTasks}
+                titleRender={(task) => (
+                  <TaskCard
+                    depth={1}
+                    task={task}
+                    key={task._id}
+                    parentId={task.parentId}
+                  />
+                )}
+                defaultExpandAll
+                autoExpandParent
+                switcherIcon={<SwitcherIcon />}
+                selectable={false}
+              />
+            )}
           </TreeContainer>
         ) : (
           projectId && <EmptyTaskCard projectId={projectId} />
@@ -119,6 +148,8 @@ const SwitcherIcon = () => {
 };
 
 const TreeContainer = styled.div`
+  display: flex;
+  gap: 8px;
   .ant-tree {
     background-color: transparent;
   }

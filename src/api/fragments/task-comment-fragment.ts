@@ -7,6 +7,7 @@ export const TaskCommentFragment = gql`
       _id
       name
       email
+      emoji
     }
     content
   }

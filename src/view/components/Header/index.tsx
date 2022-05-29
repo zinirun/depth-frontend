@@ -4,13 +4,21 @@ import RowFlexSection from "../Layout/RowFlexSection";
 import { StrokeLogo } from "../Logo";
 import { ReactComponent as ExpandIcon } from "assets/common/ExpandWhiteIcon.svg";
 import { ReactComponent as InfoIcon } from "assets/common/InfoIcon.svg";
+import { ReactComponent as CustomizeIcon } from "assets/common/PenIcon.svg";
 import { Size } from "configs/styles/size";
 import { IProject } from "configs/interfaces/common/project.interface";
 import useHeader from "util/hooks/useHeader";
 import Typo from "../Typo/Typo";
 import { SystemColor } from "configs/styles/colors";
 import IconButton from "../Button/IconButton";
-import { Drawer, Dropdown, Popover } from "antd";
+import {
+  Drawer,
+  Dropdown,
+  Popover,
+  Radio,
+  RadioChangeEvent,
+  Switch,
+} from "antd";
 import ShortcutGuide from "./ShortcutGuide";
 import ProjectOverlay from "./ProjectOverlay";
 import LogoOverlay from "./LogoOverlay";
@@ -19,8 +27,10 @@ import { ProfileBadge, ProfileBadges } from "../Badge/ProfileBadge";
 import useModal from "util/hooks/useModal";
 import UpdateProjectModalContent from "./UpdateProjectModalContent";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProfileCard from "../Card/ProfileCard";
+import useCustomized from "util/hooks/useCustomized";
+import Line from "../Line";
 
 export type HeaderOperation = "main" | "project";
 export interface IHeaderOption {
@@ -35,7 +45,16 @@ export function Header() {
   const { header } = useHeader();
   const { logout, user } = useUser();
   const { setModal } = useModal();
+  const [showCustomizeSection, setShowCustomizeSection] =
+    useState<boolean>(false);
   const navigate = useNavigate();
+  const { layout, setLayout, hideDone, setHideDone } = useCustomized(
+    header.projectId
+  );
+
+  useEffect(() => {
+    setShowCustomizeSection(false);
+  }, [header.projectId]);
 
   const openUpdateProjectModal = () => {
     if (header.projectId) {
@@ -47,8 +66,47 @@ export function Header() {
     }
   };
 
+  const toggleShowCustomizeSection = () => {
+    setShowCustomizeSection((prev) => !prev);
+  };
+
+  const handleChangeLayout = (e: RadioChangeEvent) => {
+    setLayout(e.target.value);
+  };
+
+  const handleChangeHideDone = (e: boolean) => {
+    setHideDone(e);
+  };
+
   return (
     <NavSection>
+      {header.operation === "project" &&
+        header.project &&
+        showCustomizeSection && (
+          <ProjectCustomizeSection>
+            <RowFlexSection gap={6}>
+              <Typo fontSize="0.8rem">Layout</Typo>
+              <Radio.Group
+                size="small"
+                buttonStyle="solid"
+                defaultValue={layout}
+                onChange={handleChangeLayout}
+              >
+                <Radio.Button value="vertical">Vertical</Radio.Button>
+                <Radio.Button value="horizontal">Horizontal</Radio.Button>
+              </Radio.Group>
+            </RowFlexSection>
+            <Line />
+            <RowFlexSection gap={6}>
+              <Typo fontSize="0.8rem">Hide done</Typo>
+              <Switch
+                size="small"
+                defaultChecked={hideDone}
+                onChange={handleChangeHideDone}
+              />
+            </RowFlexSection>
+          </ProjectCustomizeSection>
+        )}
       <RowFlexSection gap={0}>
         <Dropdown
           overlay={() =>
@@ -96,6 +154,16 @@ export function Header() {
               </Typo>
             </TransparentButton>
           </Dropdown>
+        )}
+        {header.operation === "project" && header.project && (
+          <TransparentButton
+            hoverBackground="#111"
+            height={Size.HeaderHeight}
+            padding="0 4px"
+            onClick={toggleShowCustomizeSection}
+          >
+            <CustomizeIcon width={20} height={20} />
+          </TransparentButton>
         )}
       </RowFlexSection>
       <RowFlexSection gap={8}>
@@ -146,6 +214,26 @@ export function Header() {
     </NavSection>
   );
 }
+
+const ProjectCustomizeSection = styled.div`
+  padding: 16px;
+  background-color: white;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0px 4px 8px rgba(57, 58, 64, 0.16);
+  position: absolute;
+  top: ${Size.HeaderHeight}px;
+  left: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  color: #333;
+  .ant-radio-button-wrapper {
+    span {
+      font-size: 0.75rem;
+    }
+  }
+`;
 
 const NavSection = styled.nav`
   display: flex;

@@ -11,6 +11,7 @@ export const TaskFragment = gql`
       _id
       name
       email
+      emoji
     }
     title
     content
@@ -19,6 +20,7 @@ export const TaskFragment = gql`
       _id
       name
       email
+      emoji
     }
     deadline {
       from

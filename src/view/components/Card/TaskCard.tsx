@@ -111,13 +111,13 @@ export function TaskCard({ task, depth, parentId }: ITaskCardProps) {
                 padding="6px 0 4px"
               >
                 <Typo fontSize="0.9rem">{getTaskCardMenuTitle(menu)}</Typo>
-                <CloseIconButton onClick={closeMenu} />
+                <CloseIconButton size="small" onClick={closeMenu} />
               </RowFlexSection>
             }
-            visible={menu?.visible}
+            visible={(menu?.visible && !!menu?.type) || false}
             onVisibleChange={(visible) => setMenu({ visible })}
             placement={"bottomLeft"}
-            trigger=""
+            trigger="click"
           >
             <CardContainer
               id={task._id}

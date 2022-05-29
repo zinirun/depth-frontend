@@ -6,6 +6,7 @@ export const PROJECT_USERS = gql`
       _id
       email
       name
+      emoji
       role
       createdAt
       updatedAt

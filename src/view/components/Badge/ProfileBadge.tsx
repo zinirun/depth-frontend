@@ -1,17 +1,17 @@
 import styled from "styled-components";
 import Typo from "../Typo/Typo";
-import { SystemColor } from "configs/styles/colors";
 import { IUserMeta } from "configs/interfaces/common/user-meta.interface";
 import { HTMLAttributes } from "react";
 import { Tooltip } from "antd";
 
 interface IProfileBadgeProps {
-  user: IUserMeta;
+  user: Omit<IUserMeta, "_id">;
   size?: "medium" | "large";
-  idx?: number;
+  bordered?: boolean;
+  pointer?: boolean;
 }
 
-export function ProfileBadge({ user, idx, size }: IProfileBadgeProps) {
+export function ProfileBadge({ user, size }: IProfileBadgeProps) {
   return (
     <Tooltip
       title={
@@ -26,12 +26,36 @@ export function ProfileBadge({ user, idx, size }: IProfileBadgeProps) {
       }
       placement="bottom"
     >
-      <RoundBadge className="profile-badge" background={getBadgeColor(idx)}>
-        <Typo fontSize="0.8rem" color="white">
-          {user.name ? user.name[0] : user.email[0]}
-        </Typo>
-      </RoundBadge>
+      <RoundProfileBadge user={user} size={size} />
     </Tooltip>
+  );
+}
+
+export function RoundProfileBadge({
+  user,
+  size,
+  bordered,
+  pointer,
+}: IProfileBadgeProps) {
+  return (
+    <RoundBadge
+      className="profile-badge"
+      size={size}
+      background={
+        user.emoji ? undefined : getPastelColorByString(user.name || user.email)
+      }
+      bordered={bordered}
+      pointer={pointer}
+    >
+      <Typo
+        fontSize={
+          size === "large" ? "1.6rem" : user.emoji ? "1.35rem" : "0.8rem"
+        }
+        color="white"
+      >
+        {user.emoji || (user.name ? user.name[0] : user.email[0])}
+      </Typo>
+    </RoundBadge>
   );
 }
 
@@ -49,8 +73,8 @@ export function ProfileBadges({
   return (
     <BadgeGroupContainer {...rest}>
       <BadgeGroup>
-        {profiles.slice(-overflowCount).map((user, idx) => (
-          <ProfileBadge key={user._id} user={user} idx={idx} />
+        {profiles.slice(-overflowCount).map((user) => (
+          <ProfileBadge key={user._id} user={user} />
         ))}
       </BadgeGroup>
       {users.length > overflowCount && (
@@ -87,29 +111,39 @@ const BadgeGroup = styled.div`
 const RoundBadge = styled.div<{
   size?: "medium" | "large";
   background?: string;
+  bordered?: boolean;
+  pointer?: boolean;
 }>`
   user-select: none;
   width: 22px;
   height: 22px;
   border-radius: 100%;
-  background: ${(props) => props.background || SystemColor.Grey50};
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
+  ${(props) => props.size === "large" && `width: 48px; height: 48px;`}
+  ${(props) => props.background && `background: ${props.background};`}
   ${(props) =>
-    props.size && props.size === "large" && `width: 32px; height: 32px;`}
+    props.bordered &&
+    `
+  box-shadow: 0px 0px 2px 2px rgba(74, 74, 74, 0.174);`}
+  ${(props) => props.pointer && `cursor: pointer;`}
 `;
 
-const badgeColors = [
-  SystemColor.Iris60,
-  SystemColor.Fuschia80,
-  SystemColor.Blue50,
-  SystemColor.Green30,
-];
-function getBadgeColor(idx?: number) {
-  if (idx !== 0 && !idx) {
-    return SystemColor.Grey50;
-  }
-  return badgeColors[idx % badgeColors.length];
+function getPastelColorByString(str: string): string {
+  const baseRed = 128;
+  const baseGreen = 128;
+  const baseBlue = 128;
+
+  let seed = str.charCodeAt(0);
+  const rand_1 = Math.abs(Math.sin(seed++) * 10000) % 256;
+  const rand_2 = Math.abs(Math.sin(seed++) * 10000) % 256;
+  const rand_3 = Math.abs(Math.sin(seed++) * 10000) % 256;
+
+  const r = Math.round((rand_1 + baseRed) / 2);
+  const g = Math.round((rand_2 + baseGreen) / 2);
+  const b = Math.round((rand_3 + baseBlue) / 2);
+
+  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }

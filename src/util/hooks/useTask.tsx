@@ -106,10 +106,10 @@ export default function useTask(
   const debouncedTitle = useDebounce({ value: title, delay: 500 });
   const debouncedContent = useDebounce({ value: content, delay: 500 });
   const { reward } = useReward("reward-target", "emoji", {
-    emoji: ["👍", "❤️"],
+    emoji: ["💛", "💚", "💙", "🧡", "💜", "❤️"],
     lifetime: 160,
     elementSize: 14,
-    elementCount: 20,
+    elementCount: 25,
     spread: 60,
   });
   // dropdown menu

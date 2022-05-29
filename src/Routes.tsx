@@ -3,6 +3,7 @@ import Modal from "view/components/Modal";
 import AssignPage from "view/pages/LoginPage/Assign";
 import PrivacyPolicyPage from "view/pages/LoginPage/PrivacyPolicy";
 import SetTokenPage from "view/pages/LoginPage/SetToken";
+import ErrorPage from "view/pages/_global/ErrorPage";
 import LoginPage from "./view/pages/LoginPage";
 import WorkspacePage from "./view/pages/WorkspacePage";
 
@@ -11,6 +12,7 @@ export function AfterLoginRoutes() {
     <BrowserRouter>
       <Modal />
       <Routes>
+        <Route path="error" element={<ErrorPage />} />
         <Route path="/workspace" element={<WorkspacePage operation="main" />} />
         <Route
           path="/workspace/tasktree/:projectId"

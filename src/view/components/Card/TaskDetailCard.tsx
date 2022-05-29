@@ -63,10 +63,15 @@ const TaskDetailCard = (props: ITaskDetailCardProps) => {
   const openMenuWithSetDeadline = () => {
     setMenu({ visible: true, type: TaskTitleCommand.SetDeadline });
   };
+
   const popoverProps = {
     title: (
       <RowFlexSection justifyContent="space-between" padding="6px 0 4px">
         <Typo fontSize="0.9rem">{getTaskCardMenuTitle(menu)}</Typo>
+        <CloseIconButton
+          onClick={() => setMenu({ visible: false })}
+          size="small"
+        />
       </RowFlexSection>
     ),
     content: () =>
@@ -82,6 +87,11 @@ const TaskDetailCard = (props: ITaskDetailCardProps) => {
       }),
     trigger: "click",
     placement: "bottom" as TooltipPlacement,
+    // onVisibleChange: (visible: boolean) =>
+    //   setMenu({
+    //     ...menu,
+    //     visible,
+    //   }),
   };
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -114,7 +124,10 @@ const TaskDetailCard = (props: ITaskDetailCardProps) => {
         overflow: "hidden",
       }}
       width={560}
-      mask={false}
+      autoFocus
+      maskStyle={{
+        backgroundColor: "transparent",
+      }}
     >
       <RowFlexSection
         gap={2}
@@ -140,7 +153,10 @@ const TaskDetailCard = (props: ITaskDetailCardProps) => {
         justifyContent="space-between"
         padding="6px 0"
       >
-        <Popover {...popoverProps}>
+        <Popover
+          {...popoverProps}
+          visible={menu?.visible && menu?.type === TaskTitleCommand.SetDeadline}
+        >
           <Typo
             color="#555"
             fontSize="0.65rem"
@@ -170,7 +186,12 @@ const TaskDetailCard = (props: ITaskDetailCardProps) => {
             ) : (
               <></>
             )}
-            <Popover {...popoverProps}>
+            <Popover
+              {...popoverProps}
+              visible={
+                menu?.visible && menu?.type === TaskTitleCommand.AssignMembers
+              }
+            >
               {involvedUsers?.length ? (
                 <ProfileBadges
                   users={involvedUsers}

@@ -10,6 +10,9 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import errorLogger from "util/logger/error-logger";
 import Typo from "../Typo/Typo";
+import Button from "../Button";
+import RowFlexSection from "../Layout/RowFlexSection";
+import useEventFocus from "util/hooks/useEventFocus";
 
 type TaskCardMenuType =
   | TaskTitleCommand.AssignMembers
@@ -46,6 +49,7 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
     withCaptureClose = true,
   } = props;
   const [users, setUsers] = useState<IUserMeta[]>([]);
+  const { setTaskEventFocus } = useEventFocus();
   const {
     data: userData,
     error: userError,
@@ -89,8 +93,7 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
   };
 
   const handleChangeAssignedMembers = (values: string[], option: any) => {
-    const involvedUserIds = values.filter((id) => id !== task?.author._id);
-    const involvedUsers = involvedUserIds
+    const involvedUsers = values
       .map((id) => {
         const user = users.find((user) => user._id === id);
         if (!user) {
@@ -109,7 +112,7 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
         from: (fromMoment as Moment).toDate(),
         to: (toMoment as Moment).toDate(),
       });
-    setChanged && setChanged(true);
+    handleAfterUpdate();
   };
 
   const handleChangeDate = (toMoment: Moment | null) => {
@@ -118,7 +121,22 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
         from: undefined,
         to: (toMoment as Moment).toDate(),
       });
+    handleAfterUpdate();
+  };
+
+  const handleDeleteDeadline = () => {
+    setDeadline &&
+      setDeadline({
+        from: undefined,
+        to: undefined,
+      });
+    handleAfterUpdate();
+  };
+
+  const handleAfterUpdate = () => {
+    setMenu && setMenu({ visible: false });
     setChanged && setChanged(true);
+    task && setTaskEventFocus(task._id);
   };
 
   switch (menu?.type) {
@@ -132,7 +150,6 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
             placeholder="Select members"
             optionFilterProp="children"
             defaultValue={[
-              task?.author?._id!,
               ...(task?.involvedUsers.map((user) => user._id) || []),
             ]}
             defaultOpen={true}
@@ -142,12 +159,9 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
             loading={userLoading}
           >
             {users.map((user) => (
-              <Select.Option
-                value={user._id}
-                key={user._id}
-                disabled={task?.author._id === user._id}
-              >
-                {user.name ? `${user.name} (${user.email})` : user.email}
+              <Select.Option value={user._id} key={user._id}>
+                {user.emoji ? `${user.emoji} ` : ""}
+                {user.name || user.email}
               </Select.Option>
             ))}
           </Select>
@@ -164,6 +178,7 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
               ]}
               onKeyDown={captureInDeadline}
               onChange={handleChangeDateRange}
+              allowClear={false}
               autoFocus
             />
           ) : (
@@ -173,18 +188,26 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
               }
               onKeyDown={captureInDeadline}
               onChange={handleChangeDate}
+              allowClear={false}
               autoFocus
             />
           )}
-          <Typo padding="12px 0 0" fontSize="0.75rem" color="#aaa">
-            <Typo span code fontSize="0.675rem">
-              Shift
-            </Typo>{" "}
-            <Typo span code fontSize="0.675rem">
-              Tab
-            </Typo>{" "}
-            to set the {isDateRange ? "date" : "date range"}
-          </Typo>
+          <RowFlexSection padding="12px 0 0" justifyContent="space-between">
+            <Typo fontSize="0.75rem" color="#aaa">
+              <Typo span code fontSize="0.675rem">
+                Shift
+              </Typo>{" "}
+              <Typo span code fontSize="0.675rem">
+                Tab
+              </Typo>{" "}
+              to set the {isDateRange ? "date" : "date range"}
+            </Typo>
+            {task?.deadline?.to && (
+              <Button size="small" onClick={handleDeleteDeadline}>
+                Delete
+              </Button>
+            )}
+          </RowFlexSection>
         </MenuContainer>
       );
     default:

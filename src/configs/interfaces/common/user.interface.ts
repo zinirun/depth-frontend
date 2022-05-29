@@ -9,6 +9,7 @@ export interface IUser {
   email: string;
   name?: string;
   role: "Common" | "Manager" | "Admin";
+  emoji?: string;
   inviteStatus: "Pending" | "Assigned";
   createdAt: Date;
   updatedAt: Date;

@@ -10,6 +10,7 @@ export const TaskMetaFragment = gql`
       _id
       name
       email
+      emoji
     }
     title
     # content

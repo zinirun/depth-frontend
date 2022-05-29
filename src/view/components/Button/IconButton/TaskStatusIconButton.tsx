@@ -46,10 +46,10 @@ export default function TaskStatusIconButton({
   big?: boolean;
 }) {
   const { reward } = useReward("reward-target", "emoji", {
-    emoji: ["👍", "❤️"],
+    emoji: ["💛", "💚", "💙", "🧡", "💜", "❤️"],
     lifetime: 160,
     elementSize: 14,
-    elementCount: 20,
+    elementCount: 25,
     spread: 60,
   });
   const nextStatus = getToggleTaskStatus(status);

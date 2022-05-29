@@ -6,12 +6,14 @@ import {
 import { TASKS_BY_PROJECT_ID } from "api/queries/tasksByProjectId";
 import { ITask } from "configs/interfaces/common/task.interface";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import { FlatTaskStore, TaskStore } from "recoil/atoms";
 import errorLogger from "util/logger/error-logger";
 import flattenTasks from "view/components/_util/flattenTasks";
 
 export default function useSyncronizeTask(projectId?: string) {
+  const navigate = useNavigate();
   const [tasksByProjectId, setTasksByProjectId] = useRecoilState(TaskStore);
   const [flatTasksByProjectId, setFlatTasksByProjectId] =
     useRecoilState(FlatTaskStore);
@@ -84,10 +86,29 @@ export default function useSyncronizeTask(projectId?: string) {
     return _tasks;
   }
 
+  function filterDoneTasks(tasks: ITask[]) {
+    let _tasks: ITask[] = tasks.reduce((doneTasks, task) => {
+      if (task.status !== "Done") {
+        doneTasks.push({
+          ...task,
+          children: task.children?.length ? filterDoneTasks(task.children) : [],
+        });
+      }
+      return doneTasks;
+    }, [] as ITask[]);
+    return _tasks;
+  }
+
   useEffect(() => {
     if (error) {
       errorLogger(new Error(`cannot syncronize tasks: ${error.message}`));
+      navigate("/error", {
+        state: {
+          message: "Project not found",
+        },
+      });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error]);
 
   const init = () => {
@@ -103,6 +124,7 @@ export default function useSyncronizeTask(projectId?: string) {
 
   return {
     tasks,
+    filterDoneTasks,
     refetch,
     loading,
     init,

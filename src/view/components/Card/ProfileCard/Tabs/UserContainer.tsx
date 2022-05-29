@@ -1,4 +1,4 @@
-import { Form, Input, message } from "antd";
+import { Form, Input, message, Popover } from "antd";
 import moment from "moment";
 import { useState } from "react";
 import useUser from "util/hooks/useUser";
@@ -7,6 +7,8 @@ import ColumnFlexSection from "view/components/Layout/ColumnFlexSection";
 import RowFlexSection from "view/components/Layout/RowFlexSection";
 import Line from "view/components/Line";
 import Typo from "view/components/Typo/Typo";
+import EmojiPicker, { IEmojiData } from "emoji-picker-react";
+import { RoundProfileBadge } from "view/components/Badge/ProfileBadge";
 
 export default function UserContainer() {
   const { user, update } = useUser();
@@ -28,12 +30,43 @@ export default function UserContainer() {
       message.success("Saved successfully");
     }
   };
+
+  const [chosenEmoji, setChosenEmoji] = useState<string>();
+  const handleChangeEmoji = (
+    _: React.MouseEvent<Element, MouseEvent>,
+    { emoji }: IEmojiData
+  ) => {
+    setChosenEmoji(emoji);
+    update({
+      emoji,
+    });
+    message.success(`Your emoji ${emoji} saved successfully`);
+  };
   return (
     <>
       {user && (
         <Form onFinish={handleSubmit}>
           <ColumnFlexSection gap={16}>
             <ColumnFlexSection gap={6}>
+              <RowFlexSection>
+                <Popover
+                  title={<EmojiPicker onEmojiClick={handleChangeEmoji} />}
+                  trigger={"click"}
+                >
+                  <div>
+                    <RoundProfileBadge
+                      user={{
+                        emoji: chosenEmoji || user.emoji,
+                        name: user.name,
+                        email: user.email,
+                      }}
+                      size="large"
+                      bordered={!!(chosenEmoji || user.emoji)}
+                      pointer
+                    />
+                  </div>
+                </Popover>
+              </RowFlexSection>
               <RowFlexSection justifyContent="space-between">
                 <Typo fontSize="0.85rem">Name</Typo>
                 <Button size="small" type="submit" disabled={!canUpdate}>

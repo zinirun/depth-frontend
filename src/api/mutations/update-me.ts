@@ -5,6 +5,7 @@ export interface IUpdateUserInput {
   id: string;
   name?: string;
   role?: "Common" | "Manager" | "Admin";
+  emoji?: string;
 }
 
 export const UPDATE_ME = gql`

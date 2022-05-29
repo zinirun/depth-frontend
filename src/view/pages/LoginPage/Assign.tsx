@@ -3,22 +3,26 @@ import ColumnFlexSection from "../../components/Layout/ColumnFlexSection";
 import FullScreen from "../../components/Layout/FullScreen";
 import Typo from "view/components/Typo/Typo";
 import moment from "moment";
-import { Form, Input } from "antd";
+import { Form, Input, Popover } from "antd";
 import { SystemColor } from "configs/styles/colors";
 import { useMutation } from "@apollo/react-hooks";
 import { ASSIGN_INVITE_WITH_OAUTH } from "api/mutations/assign-invite";
 import { IUser } from "configs/interfaces/common/user.interface";
 import errorLogger from "util/logger/error-logger";
 import useUser from "util/hooks/useUser";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import EmojiPicker, { IEmojiData } from "emoji-picker-react";
+import { RoundProfileBadge } from "view/components/Badge/ProfileBadge";
+import RowFlexSection from "view/components/Layout/RowFlexSection";
 
 export default function AssignPage() {
   const { setUser, logout, userPending: user, setUserPending } = useUser();
   const navigate = useNavigate();
+  const [chosenEmoji, setChosenEmoji] = useState<string | undefined>(undefined);
   const [assignInviteWithOAuth] = useMutation<
     { assignInviteWithOAuth: IUser },
-    { id: string; name?: string }
+    { id: string; name?: string; emoji?: string }
   >(ASSIGN_INVITE_WITH_OAUTH);
   const handleAssign = async ({ name }: { name: string }) => {
     if (!user) {
@@ -26,7 +30,7 @@ export default function AssignPage() {
     }
     try {
       const { data } = await assignInviteWithOAuth({
-        variables: { id: user.id, name },
+        variables: { id: user.id, name, emoji: chosenEmoji },
       });
       if (data?.assignInviteWithOAuth) {
         setUser(data.assignInviteWithOAuth);
@@ -43,6 +47,13 @@ export default function AssignPage() {
       navigate("/login");
     }
   }, [user, navigate]);
+
+  const handleChangeEmoji = (
+    _: React.MouseEvent<Element, MouseEvent>,
+    { emoji }: IEmojiData
+  ) => {
+    setChosenEmoji(emoji);
+  };
   return (
     <FullScreen alignItems="center" justifyContent="center">
       {user && (
@@ -54,6 +65,29 @@ export default function AssignPage() {
           </ColumnFlexSection>
           <Form onFinish={handleAssign}>
             <ColumnFlexSection width={320} gap={12}>
+              <RowFlexSection justifyContent="space-between">
+                <Typo color={SystemColor.Grey50} fontSize="0.9rem">
+                  Your emoji
+                </Typo>
+                <Popover
+                  title={<EmojiPicker onEmojiClick={handleChangeEmoji} />}
+                  trigger={"click"}
+                >
+                  <div>
+                    <RoundProfileBadge
+                      user={{
+                        emoji: chosenEmoji,
+                        name: user.name,
+                        email: user.email,
+                      }}
+                      size="large"
+                      bordered={!!chosenEmoji}
+                      pointer
+                    />
+                  </div>
+                </Popover>
+              </RowFlexSection>
+
               <Typo color={SystemColor.Grey50} fontSize="0.9rem">
                 Your display name
               </Typo>
