@@ -13,6 +13,7 @@ export const UserFragment = gql`
         oauthId
         email
         name
+        emoji
         role
         inviteStatus
         createdAt

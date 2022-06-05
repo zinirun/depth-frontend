@@ -16,8 +16,8 @@ export default function LoginPage() {
   const { userPending } = useUser();
   const navigate = useNavigate();
   const onClickGoogleLogin = () => {
-    window.location.href = "https://api.depth.so/auth/google";
-    // window.location.href = "http://localhost:5000/auth/google";
+    // window.location.href = "https://api.depth.so/auth/google";
+    window.location.href = "http://localhost:5000/auth/google";
   };
   useEffect(() => {
     if (userPending) {

@@ -10,15 +10,9 @@ import { TaskCard } from "view/components/Card/TaskCard";
 import PrimaryContentSection from "view/components/Layout/PrimaryContentSection";
 import { ReactComponent as ExpandIcon } from "assets/common/FoldIcon.svg";
 import errorLogger from "util/logger/error-logger";
-import useModal from "util/hooks/useModal";
 import useCustomized from "util/hooks/useCustomized";
 
 export function WorkspaceTaskTreeContainer() {
-  const { close } = useModal();
-  useEffect(() => {
-    return () => close();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   const { projectId } = useParams();
   const { syncProject } = useHeader();
   const { tasks, init, loading, moveChild, filterDoneTasks } =

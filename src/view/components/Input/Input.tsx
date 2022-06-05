@@ -24,14 +24,14 @@ const Input = forwardRef<HTMLInputElement, IInputProps>((props, ref) => {
       ref={composeRef(ref, inputRef)}
       onChange={handleChange}
       onClick={preventPropagation}
-      onDragEnter={(e) => {
-        console.log("drag capture");
-        e.stopPropagation();
-        e.preventDefault();
-      }}
-      onDragEnd={(e) => {
-        console.log("drag end");
-      }}
+      // onDragEnter={(e) => {
+      //   console.log("drag capture");
+      //   e.stopPropagation();
+      //   e.preventDefault();
+      // }}
+      // onDragEnd={(e) => {
+      //   console.log("drag end");
+      // }}
     />
   );
 });

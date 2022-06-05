@@ -1,7 +1,6 @@
 import PrimaryContentSection from "view/components/Layout/PrimaryContentSection";
 import { useEffect } from "react";
 import useHeader from "util/hooks/useHeader";
-import useModal from "util/hooks/useModal";
 import { Tabs } from "antd";
 import ProjectsContainer from "./Tabs/ProjectsContainer";
 import MyTasksContainer from "./Tabs/MyTasksContainer";
@@ -11,11 +10,6 @@ import { useRecoilState } from "recoil";
 import { WorkspaceMainTabKeyState } from "recoil/atoms";
 
 export function WorkspaceMainContainer() {
-  const { close } = useModal();
-  useEffect(() => {
-    return () => close();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   const { initialize, setOperation } = useHeader();
   useEffect(() => {
     initialize();
