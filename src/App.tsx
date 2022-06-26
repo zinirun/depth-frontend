@@ -9,6 +9,7 @@ import { LoginValidator } from "./util/hoc/LoginValidator";
 
 function App() {
   const user = useRecoilValue(UserState);
+  // const gqlClient = client(user?._access);
   return (
     <ApolloProvider client={client}>
       <GlobalStyle />

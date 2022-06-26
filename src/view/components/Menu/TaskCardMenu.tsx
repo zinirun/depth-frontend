@@ -59,6 +59,7 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
     variables: { id: task?.project?._id! },
     skip: menu?.type !== TaskTitleCommand.AssignMembers || !task?.project?._id,
   });
+
   const [isDateRange, setIsDateRange] = useState<boolean>(
     !!task?.deadline?.from && !!task?.deadline?.to
   );

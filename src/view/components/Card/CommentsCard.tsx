@@ -5,7 +5,7 @@ import { ProfileBadge } from "../Badge/ProfileBadge";
 import RowFlexSection from "../Layout/RowFlexSection";
 import Typo from "../Typo/Typo";
 import { ReactComponent as CommentAddIcon } from "assets/common/CommentAddIcon.svg";
-import { useMutation } from "@apollo/react-hooks";
+import { ApolloQueryResult, useMutation } from "@apollo/react-hooks";
 import {
   CREATE_TASK_COMMENT,
   ICreateTaskCommentInput,
@@ -27,10 +27,11 @@ import {
 } from "api/mutations/update-task-comment";
 import { DELETE_TASK_COMMENT } from "api/mutations/delete-task-comment";
 import { IUser } from "configs/interfaces/common/user.interface";
+import { ITask } from "configs/interfaces/common/task.interface";
 
 interface ICommentsCardProps {
   taskId: string;
-  refetch?: () => Promise<void>;
+  refetch?: () => Promise<ApolloQueryResult<{ task: ITask }>>;
   comments: ITaskComment[];
 }
 

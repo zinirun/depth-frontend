@@ -2,6 +2,7 @@ import { ICompany } from "./company.interface";
 
 export interface IUser {
   _id: string;
+  _access: string;
   company: ICompany;
   authType: "Plain" | "Google";
   oauthProvider?: string;
