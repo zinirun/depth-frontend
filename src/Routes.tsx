@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import useSubscribeTaskEvent from "util/hooks/useSubscribeTaskEvent";
 import Modal from "view/components/Modal";
 import AssignPage from "view/pages/LoginPage/Assign";
 import PrivacyPolicyPage from "view/pages/LoginPage/PrivacyPolicy";
@@ -8,6 +9,7 @@ import LoginPage from "./view/pages/LoginPage";
 import WorkspacePage from "./view/pages/WorkspacePage";
 
 export function AfterLoginRoutes() {
+  useSubscribeTaskEvent();
   return (
     <BrowserRouter>
       <Modal />

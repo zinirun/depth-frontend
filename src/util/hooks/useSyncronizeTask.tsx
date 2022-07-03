@@ -1,134 +1,56 @@
-import { useLazyQuery, useMutation } from "@apollo/react-hooks";
-import {
-  IMoveTaskChildInput,
-  MOVE_TASK_CHILD,
-} from "api/mutations/move-task-child";
-import { TASKS_BY_PROJECT_ID } from "api/queries/tasksByProjectId";
+import { useLazyQuery } from "@apollo/react-hooks";
+import { TASK } from "api/queries/task";
 import { ITask } from "configs/interfaces/common/task.interface";
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
-import { FlatTaskStore, TaskStore } from "recoil/atoms";
+import { FlatTasksStore } from "recoil/atoms";
 import errorLogger from "util/logger/error-logger";
-import flattenTasks from "view/components/_util/flattenTasks";
 
-export default function useSyncronizeTask(projectId?: string) {
-  const navigate = useNavigate();
-  const [tasksByProjectId, setTasksByProjectId] = useRecoilState(TaskStore);
-  const [flatTasksByProjectId, setFlatTasksByProjectId] =
-    useRecoilState(FlatTaskStore);
-  const flatTasks = flatTasksByProjectId[projectId || ""];
-  const tasks = (projectId && tasksByProjectId[projectId]) || [];
-
-  // TODO: command params, what refetch?
-  const [getTasksByProjectId, { refetch: refetchTasks, loading, data, error }] =
-    useLazyQuery<{ tasksByProjectId: ITask[] }, { projectId: string }>(
-      TASKS_BY_PROJECT_ID,
-      {
-        variables: {
-          projectId: projectId!,
-        },
-      }
-    );
-  const [moveTaskChild] = useMutation<
-    { moveTaskChild: ITask[] },
-    { input: IMoveTaskChildInput }
-  >(MOVE_TASK_CHILD);
-
-  const moveChild = async (input: IMoveTaskChildInput) => {
-    try {
-      const { data } = await moveTaskChild({
-        variables: { input },
-      });
-      await refetchTasks();
-      return data?.moveTaskChild;
-    } catch (err) {
-      errorLogger(err as Error);
-    }
-  };
+export default function useSyncronizeTask(id: string) {
+  const [flatTasks, setFlatTasks] = useRecoilState(FlatTasksStore);
+  const task = flatTasks[id];
+  const [fetchTask, { data, loading, error, refetch }] = useLazyQuery<
+    { task: ITask },
+    { id: string }
+  >(TASK, {
+    variables: {
+      id,
+    },
+  });
 
   useEffect(() => {
-    async function sync() {
-      await getTasksByProjectId();
+    async function fetch() {
+      await fetchTask();
     }
-    if (projectId) {
-      sync();
-    }
+    setTimeout(() => {
+      if (!task) {
+        fetch();
+      }
+    }, 300);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [task]);
 
   useEffect(() => {
     if (data) {
-      const result = mapSubProperties(data?.tasksByProjectId);
-      if (projectId) {
-        setTasksByProjectId({
-          ...tasksByProjectId,
-          [projectId]: result,
-        });
-        setFlatTasksByProjectId({
-          ...flatTasksByProjectId,
-          [projectId]: flattenTasks(result),
-        });
-      }
+      setFlatTasks((prev) => ({
+        ...prev,
+        [id]: data.task,
+      }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
-  function mapSubProperties(tasks: ITask[], parentId?: string) {
-    let _tasks: ITask[] = tasks.map((task) => ({
-      ...task,
-      key: task._id,
-      parentId: parentId || undefined,
-      children: task.children?.length
-        ? mapSubProperties(task.children, task._id)
-        : undefined,
-    }));
-    return _tasks;
-  }
-
-  function filterDoneTasks(tasks: ITask[]) {
-    let _tasks: ITask[] = tasks.reduce((doneTasks, task) => {
-      if (task.status !== "Done") {
-        doneTasks.push({
-          ...task,
-          children: task.children?.length ? filterDoneTasks(task.children) : [],
-        });
-      }
-      return doneTasks;
-    }, [] as ITask[]);
-    return _tasks;
-  }
-
   useEffect(() => {
     if (error) {
-      errorLogger(new Error(`cannot syncronize tasks: ${error.message}`));
-      navigate("/error", {
-        state: {
-          message: "Project not found",
-        },
-      });
+      errorLogger(new Error(`cannot syncronize task: ${error.message}`));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [error]);
 
-  const init = () => {
-    if (projectId) {
-      const { [projectId]: _, ...rest } = tasksByProjectId;
-      setTasksByProjectId(rest);
-    }
-  };
-
-  const refetch = async () => {
-    await refetchTasks();
-  };
-
   return {
-    tasks,
-    filterDoneTasks,
+    task,
+    tasks: flatTasks,
     refetch,
     loading,
-    init,
-    flatTasks,
-    moveChild,
   };
 }

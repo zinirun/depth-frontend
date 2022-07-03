@@ -61,25 +61,13 @@ export const ProjectsState = atom<IProject[]>({
   default: [],
 });
 
-export const TaskStore = atom<Record<string, ITask[]>>({
-  key: "project/task-store",
-  default: {},
-});
-
-// new
 export const TaskTreeStore = atom<Record<string, ITaskTree[]>>({
   key: "project/task-tree-store",
   default: {},
 });
 
-// new
 export const FlatTasksStore = atom<Record<string, ITask>>({
   key: "project/flat-tasks-store",
-  default: {},
-});
-
-export const FlatTaskStore = atom<Record<string, Record<string, ITask>>>({
-  key: "project/flat-task-store",
   default: {},
 });
 

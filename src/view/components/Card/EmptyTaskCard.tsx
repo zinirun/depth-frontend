@@ -4,7 +4,6 @@ import { ITask } from "configs/interfaces/common/task.interface";
 import { SystemColor } from "configs/styles/colors";
 import { useReward } from "react-rewards";
 import styled from "styled-components";
-import useSyncronizeTask from "util/hooks/useSyncronizeTask";
 import errorLogger from "util/logger/error-logger";
 import RowFlexSection from "../Layout/RowFlexSection";
 import Typo from "../Typo/Typo";
@@ -16,7 +15,6 @@ export function EmptyTaskCard({ projectId }: { projectId: string }) {
     elementSize: 16,
     spread: 60,
   });
-  const { refetch } = useSyncronizeTask(projectId);
   const [createTask, { loading }] = useMutation<
     { createTask: ITask },
     { task: ICreateTaskInput }
@@ -37,7 +35,6 @@ export function EmptyTaskCard({ projectId }: { projectId: string }) {
           task: newChild,
         },
       });
-      await refetch();
     } catch (err) {
       errorLogger(
         new Error(`cannot create new children: ${(err as Error).message}`)

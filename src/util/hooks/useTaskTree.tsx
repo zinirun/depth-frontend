@@ -3,19 +3,23 @@ import {
   IMoveTaskChildInput,
   MOVE_TASK_CHILD,
 } from "api/mutations/move-task-child";
+import { TASKS_BY_PROJECT_ID } from "api/queries/tasksByProjectId";
 import { TASK_TREE } from "api/queries/taskTree";
 import { ITaskTree } from "configs/interfaces/common/task-tree.interface";
 import { ITask } from "configs/interfaces/common/task.interface";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
-import { TaskTreeStore } from "recoil/atoms";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { FlatTasksStore, TaskTreeStore } from "recoil/atoms";
 import errorLogger from "util/logger/error-logger";
+import flattenTasks from "view/components/_util/flattenTasks";
+import mapSubProperties from "view/components/_util/mapTaskTree";
 
 export default function useTaskTree(projectId: string | undefined) {
   const navigate = useNavigate();
   const [taskTreeByProjectId, setTaskTreeByProjectId] =
     useRecoilState(TaskTreeStore);
+  const setFlatTasks = useSetRecoilState(FlatTasksStore);
   const taskTree = projectId && taskTreeByProjectId[projectId];
   const [fetchTaskTree, { data, refetch, loading, error }] = useLazyQuery<
     { taskTree: ITaskTree[] },
@@ -25,6 +29,36 @@ export default function useTaskTree(projectId: string | undefined) {
       projectId: projectId!,
     },
   });
+  const [fetchTasksByProjectId] = useLazyQuery<
+    { tasksByProjectId: ITask[] },
+    { projectId: string }
+  >(TASKS_BY_PROJECT_ID, {
+    variables: {
+      projectId: projectId!,
+    },
+  });
+
+  useEffect(() => {
+    async function fetch() {
+      try {
+        const { data } = await fetchTasksByProjectId();
+        if (!data?.tasksByProjectId) {
+          return;
+        }
+        const _flatTasks = flattenTasks(data.tasksByProjectId);
+        setFlatTasks((prev) => ({
+          ...prev,
+          ..._flatTasks,
+        }));
+      } catch (err) {
+        errorLogger(err as Error);
+      }
+    }
+    if (projectId) {
+      fetch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     async function fetch() {
@@ -49,18 +83,6 @@ export default function useTaskTree(projectId: string | undefined) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
-
-  function mapSubProperties(tasks: ITaskTree[], parentId?: string) {
-    let _tasks: ITaskTree[] = tasks.map((task) => ({
-      ...task,
-      key: task._id,
-      parentId: parentId || undefined,
-      children: task.children?.length
-        ? mapSubProperties(task.children, task._id)
-        : [],
-    }));
-    return _tasks;
-  }
 
   function filterDoneTasks(tasks: ITaskTree[]) {
     let _tasks: ITaskTree[] = tasks.reduce((doneTasks, task) => {

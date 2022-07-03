@@ -27,7 +27,7 @@ import useCustomized from "./useCustomized";
 import useEventFocus from "./useEventFocus";
 import useTaskMutation from "./useTaskMutation";
 import useTaskTree from "./useTaskTree";
-import useSyncronizeTask from "./_useSyncronizeTask";
+import useSyncronizeTask from "./useSyncronizeTask";
 
 export interface IConnectedTaskOptions {
   task: ITask;
@@ -135,8 +135,11 @@ export default function useTaskCard(
   };
 
   // ------------------ input debounced hooks & methods
-  const debouncedTitle = useDebounce({ value: title, delay: 500 });
-  const debouncedContent = useDebounce({ value: content, delay: 500 });
+  const debouncedTitle = useDebounce<string>({ value: title, delay: 500 });
+  const debouncedContent = useDebounce<string | undefined>({
+    value: content,
+    delay: 500,
+  });
   const handleTitleChange = (
     e:
       | React.ChangeEvent<HTMLInputElement>
@@ -182,14 +185,14 @@ export default function useTaskCard(
   // ------------------ auto update hooks
   const [changed, setChanged] = useState<boolean>(false);
   useEffect(() => {
-    if (debouncedTitle && changed) {
+    if ((debouncedTitle || debouncedTitle === "") && changed) {
       handleUpdate({ title });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedTitle]);
 
   useEffect(() => {
-    if (debouncedContent && changed) {
+    if ((debouncedContent || debouncedContent === "") && changed) {
       handleUpdate({ content });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

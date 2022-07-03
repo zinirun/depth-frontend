@@ -1,13 +1,13 @@
 import ClassName from "configs/styles/class-names";
 import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
-import { FlatTaskStore } from "recoil/atoms";
+import { FlatTasksStore } from "recoil/atoms";
 import errorLogger from "util/logger/error-logger";
 import useCustomized from "./useCustomized";
 import useEventFocus from "./useEventFocus";
 
 export default function useScroll(projectId?: string) {
-  const flatTasks = useRecoilValue(FlatTaskStore);
+  const flatTasks = useRecoilValue(FlatTasksStore);
   const { taskEventFocus, init } = useEventFocus();
   const { taskViewFocus } = useCustomized(projectId);
   const [scrollTarget, setScrollTarget] = useState<HTMLDivElement | null>(null);
@@ -30,8 +30,7 @@ export default function useScroll(projectId?: string) {
       !scrolledViewFocus &&
       projectId &&
       taskViewFocus &&
-      flatTasks[projectId] &&
-      flatTasks[projectId][taskViewFocus]
+      flatTasks[taskViewFocus]
     ) {
       scrollAndFocusByTaskId(taskViewFocus);
     }
@@ -43,8 +42,7 @@ export default function useScroll(projectId?: string) {
       !scrolledEventFocus &&
       projectId &&
       taskEventFocus &&
-      flatTasks[projectId] &&
-      flatTasks[projectId][taskEventFocus]
+      flatTasks[taskEventFocus]
     ) {
       scrollAndFocusByTaskId(taskEventFocus, true);
     }
