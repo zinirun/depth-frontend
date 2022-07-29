@@ -19,6 +19,7 @@ export const TaskMetaFragment = gql`
       _id
       name
       email
+      emoji
     }
     deadline {
       from

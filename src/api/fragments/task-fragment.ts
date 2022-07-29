@@ -32,6 +32,7 @@ export const TaskFragment = gql`
         _id
         name
         email
+        emoji
       }
       content
       createdAt
