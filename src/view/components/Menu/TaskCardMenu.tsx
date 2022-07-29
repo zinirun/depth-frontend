@@ -57,8 +57,11 @@ const TaskCardMenu = (props: ITaskCardMenuProps) => {
     refetch: refetchUsers,
   } = useQuery<{ projectUsers: IUserMeta[] }, { id: string }>(PROJECT_USERS, {
     variables: { id: task?.project?._id! },
-    skip: menu?.type !== TaskTitleCommand.AssignMembers || !task?.project?._id,
+    skip: !(
+      !!!task?.project?._id && menu?.type === TaskTitleCommand.AssignMembers
+    ),
   });
+
   const [isDateRange, setIsDateRange] = useState<boolean>(
     !!task?.deadline?.from && !!task?.deadline?.to
   );

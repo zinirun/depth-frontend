@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { TaskDetailCardCurrentIdState } from "recoil/atoms";
 import styled from "styled-components";
-import { IConnectedTaskOptions } from "util/hooks/useTask";
+import { IConnectedTaskOptions } from "util/hooks/useTaskCard";
 import { ProfileBadge, ProfileBadges } from "../Badge/ProfileBadge";
 import CloseIconButton from "../Button/IconButton/CloseIconButton";
 import TaskStatusIconButton from "../Button/IconButton/TaskStatusIconButton";
@@ -48,7 +48,6 @@ const TaskDetailCard = (props: ITaskDetailCardProps) => {
     setStatus,
     handleTitleChange,
     setChanged,
-    children,
     refetch,
     detailVisible: visible,
     setDetailVisible: setVisible,

@@ -4,28 +4,25 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import useHeader from "util/hooks/useHeader";
 import useScroll from "util/hooks/useScroll";
-import useSyncronizeTask from "util/hooks/useSyncronizeTask";
 import { EmptyTaskCard } from "view/components/Card/EmptyTaskCard";
 import { TaskCard } from "view/components/Card/TaskCard";
 import PrimaryContentSection from "view/components/Layout/PrimaryContentSection";
 import { ReactComponent as ExpandIcon } from "assets/common/FoldIcon.svg";
 import errorLogger from "util/logger/error-logger";
-import useModal from "util/hooks/useModal";
 import useCustomized from "util/hooks/useCustomized";
+import useTaskTree from "util/hooks/useTaskTree";
 
 export function WorkspaceTaskTreeContainer() {
-  const { close } = useModal();
-  useEffect(() => {
-    return () => close();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   const { projectId } = useParams();
   const { syncProject } = useHeader();
-  const { tasks, init, loading, moveChild, filterDoneTasks } =
-    useSyncronizeTask(projectId);
+  const {
+    taskTree: tasks,
+    loading,
+    moveChild,
+    filterDoneTasks,
+  } = useTaskTree(projectId);
   useEffect(() => {
     if (projectId) {
-      init();
       syncProject(projectId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -98,8 +95,7 @@ export function WorkspaceTaskTreeContainer() {
                   treeData={[topTask]}
                   titleRender={(task) => (
                     <TaskCard
-                      depth={1}
-                      task={task}
+                      id={task._id}
                       key={task._id}
                       parentId={task.parentId}
                     />
@@ -119,8 +115,7 @@ export function WorkspaceTaskTreeContainer() {
                 treeData={customizedTasks}
                 titleRender={(task) => (
                   <TaskCard
-                    depth={1}
-                    task={task}
+                    id={task._id}
                     key={task._id}
                     parentId={task.parentId}
                   />

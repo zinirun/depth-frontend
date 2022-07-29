@@ -1,10 +1,8 @@
 import { Drawer, Popover } from "antd";
-import { ITask } from "configs/interfaces/common/task.interface";
 import { SystemColor } from "configs/styles/colors";
 import moment from "moment";
 import { useRef, useState } from "react";
 import styled from "styled-components";
-import useTask from "util/hooks/useTask";
 import { ProfileBadges } from "../Badge/ProfileBadge";
 import CloseIconButton from "../Button/IconButton/CloseIconButton";
 import TaskStatusIconButton from "../Button/IconButton/TaskStatusIconButton";
@@ -18,24 +16,25 @@ import { ReactComponent as CommentIcon } from "assets/common/CommentIcon.svg";
 import InputTypo from "../Input/InputTypo";
 import { useSetRecoilState } from "recoil";
 import { TaskDetailCardCurrentIdState } from "recoil/atoms";
+import useTaskCard from "util/hooks/useTaskCard";
 
 interface ITaskCardProps {
-  task: ITask;
-  depth: number;
+  id: string;
   parentId?: string;
 }
 
-export function TaskCard({ task, depth, parentId }: ITaskCardProps) {
+export function TaskCard({ id, parentId }: ITaskCardProps) {
   const [isDeleteConfirmVisible, setIsDeleteConfirmVisible] =
     useState<boolean>(false);
   const setDetailCurrentId = useSetRecoilState(TaskDetailCardCurrentIdState);
 
-  const connectedTaskOptions = useTask(
-    task,
+  const connectedTaskOptions = useTaskCard(
+    id,
     parentId,
     setIsDeleteConfirmVisible
   );
   const {
+    task,
     title,
     comments,
     involvedUsers = [],
@@ -79,7 +78,7 @@ export function TaskCard({ task, depth, parentId }: ITaskCardProps) {
   const handleOpenDetail = () => {
     setDetailVisible && setDetailVisible(true);
     closeMenu();
-    setDetailCurrentId(task._id);
+    setDetailCurrentId(id);
   };
 
   return (
@@ -120,8 +119,7 @@ export function TaskCard({ task, depth, parentId }: ITaskCardProps) {
             trigger="click"
           >
             <CardContainer
-              id={task._id}
-              depth={depth}
+              id={id}
               onClick={handleOpenDetail}
               className="task-card-container"
             >
@@ -163,7 +161,7 @@ export function TaskCard({ task, depth, parentId }: ITaskCardProps) {
                         moment(deadline.to).local().format("YY/MM/DD")}
                     </Typo>
                   )}
-                  {task.comments?.length ? (
+                  {task?.comments?.length ? (
                     <RowFlexSection>
                       <CommentIcon width={18} height={18} />
                       <Typo color="#aaa" fontSize="0.65rem">
@@ -221,9 +219,7 @@ export function TaskCard({ task, depth, parentId }: ITaskCardProps) {
   );
 }
 
-const CardContainer = styled.div<{
-  depth: number;
-}>`
+const CardContainer = styled.div`
   display: flex;
   width: 360px;
   height: 60px;

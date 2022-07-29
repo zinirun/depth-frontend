@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import useSyncronizeToday from "util/hooks/useSyncronizeToday";
-import useModal from "util/hooks/useModal";
 import useHeader from "util/hooks/useHeader";
 import MainTaskCard from "view/components/Card/MainTaskCard";
 import { ITask } from "configs/interfaces/common/task.interface";
@@ -16,12 +15,6 @@ import { ReactComponent as CopyIcon } from "assets/common/PostitIcon.svg";
 import { message } from "antd";
 
 export default function MyTasksContainer() {
-  const { close } = useModal();
-  useEffect(() => {
-    return () => close();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const { myTasks: tasks, refetch } = useSyncronizeToday();
   const { setOperation } = useHeader();
 

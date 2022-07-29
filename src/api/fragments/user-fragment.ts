@@ -3,6 +3,7 @@ import gql from "graphql-tag";
 export const UserFragment = gql`
   fragment UserFragment on User {
     _id
+    _access
     company {
       _id
       name

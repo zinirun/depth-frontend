@@ -12,6 +12,8 @@ export interface IUpdateTaskInput {
   status?: TaskStatus;
 }
 
+export interface IUpdateTaskUserInput extends Omit<IUpdateTaskInput, "id"> {}
+
 export const UPDATE_TASK = gql`
   ${TaskFragment}
   mutation UpdateTask($task: UpdateTaskInput!) {

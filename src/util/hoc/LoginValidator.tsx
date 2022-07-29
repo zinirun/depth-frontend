@@ -20,7 +20,8 @@ export function LoginValidator({ children }: ILoginValidatorProps) {
       setLoading(false);
       setUser(data.me);
     }
-  }, [data, setUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
 
   useEffect(() => {
     if (error) {

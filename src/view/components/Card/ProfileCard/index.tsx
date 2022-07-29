@@ -1,6 +1,5 @@
 import { Tabs } from "antd";
 import { useEffect } from "react";
-import useModal from "util/hooks/useModal";
 import CloseIconButton from "view/components/Button/IconButton/CloseIconButton";
 import ColumnFlexSection from "view/components/Layout/ColumnFlexSection";
 import RowFlexSection from "view/components/Layout/RowFlexSection";
@@ -14,11 +13,6 @@ interface IProfileCardProps {
 }
 
 export default function ProfileCard({ onClose }: IProfileCardProps) {
-  const { close } = useModal();
-  useEffect(() => {
-    return () => close();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   return (
     <ColumnFlexSection gap={16}>
       <RowFlexSection

@@ -26,7 +26,9 @@ export function ProfileBadge({ user, size }: IProfileBadgeProps) {
       }
       placement="bottom"
     >
-      <RoundProfileBadge user={user} size={size} />
+      <span>
+        <RoundProfileBadge user={user} size={size} />
+      </span>
     </Tooltip>
   );
 }

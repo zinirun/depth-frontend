@@ -1,4 +1,5 @@
 import { IProject } from "configs/interfaces/common/project.interface";
+import { ITaskTree } from "configs/interfaces/common/task-tree.interface";
 import { ITask } from "configs/interfaces/common/task.interface";
 import { atom } from "recoil";
 import { recoilPersist } from "recoil-persist";
@@ -60,13 +61,13 @@ export const ProjectsState = atom<IProject[]>({
   default: [],
 });
 
-export const TaskStore = atom<Record<string, ITask[]>>({
-  key: "project/task-store",
+export const TaskTreeStore = atom<Record<string, ITaskTree[]>>({
+  key: "project/task-tree-store",
   default: {},
 });
 
-export const FlatTaskStore = atom<Record<string, Record<string, ITask>>>({
-  key: "project/flat-task-store",
+export const FlatTasksStore = atom<Record<string, ITask>>({
+  key: "project/flat-tasks-store",
   default: {},
 });
 
